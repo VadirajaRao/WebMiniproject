@@ -1,3 +1,6 @@
 pkg
-bin
 src/github.com
+bin/node_modules
+bin/package-lock.json
+bin/server
+bin/credentials.json

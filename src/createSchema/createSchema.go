@@ -26,9 +26,9 @@ type LogIn struct {
 }
 
 // extractCredentials extracts the login credentials from the JSON file.
-func extractCredentials() (LogIn, error) {
+func extractingCredentials() (LogIn, error) {
 	// ReadAll is used to read login credentials from the JSON file.
-	cred, err := ioutil.ReadFile("./passwords.json")
+	cred, err := ioutil.ReadFile("./credentials.json")
 	if err != nil {
 		return LogIn{}, errors.Wrap(err, "file read fail, passwords.json")
 	}
@@ -48,7 +48,7 @@ func extractCredentials() (LogIn, error) {
 
 // connectToDatabase uses the credentials to login to the database and returns a
 // connection object to the database.
-func connectToDatabase(credentials LogIn) (*sql.DB, error) {
+func connectingToDatabase(credentials LogIn) (*sql.DB, error) {
 	// Open is used to open a connection to the database.
 	db, err := sql.Open(
 		"mysql",
@@ -64,15 +64,15 @@ func connectToDatabase(credentials LogIn) (*sql.DB, error) {
 
 // CreateTables creates the tables for the application after extracting the login
 // credentials and establishing connection to the database.
-func CreateTables() error {
+func CreatingTables() error {
 	// extractCredentials returns login credentials.
-	credentials, err := extractCredentials()
+	credentials, err := extractingCredentials()
 	if err != nil {
 		return errors.Wrap(err, "failed to extract credentials")
 	}
 
 	// connectToDatabase returns a connection to the database.
-	db, err := connectToDatabase(credentials)
+	db, err := connectingToDatabase(credentials)
 	if err != nil {
 		return errors.Wrap(err, "failed to connect to the database")
 	}

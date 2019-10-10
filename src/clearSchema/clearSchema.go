@@ -2,6 +2,8 @@
 Package clearSchema implements functions that is used to destroy the database
 schema. This package has to be executed only to take down the schema and all the
 data. Be careful while using this because all data will be lost.
+
+This is not working yet. Facing some error.
 */
 package clearSchema
 
@@ -21,8 +23,8 @@ type LogIn struct {
 	Database string `json:"dbname"`
 }
 
-func extractCredentials() (LogIn, error) {
-	file, err := os.Open("./passwords.json")
+func extractingCredentials() (LogIn, error) {
+	file, err := os.Open("./credentials.json")
 	if err != nil {
 		return LogIn{}, errors.Wrap(err, "file open fail, passwords.json")
 	}
@@ -42,7 +44,7 @@ func extractCredentials() (LogIn, error) {
 	return credentials, nil
 }
 
-func connectToDatabase(credentials LogIn) (*sql.DB, error) {
+func connectingToDatabase(credentials LogIn) (*sql.DB, error) {
 	db, err := sql.Open(
 		"mysql",
 		credentials.Username + ":" + credentials.Password + "@(127.0.0.1:3306)/" +
@@ -55,7 +57,7 @@ func connectToDatabase(credentials LogIn) (*sql.DB, error) {
 	return db, nil
 }
 
-func dropTables(db *sql.DB) error {
+func dropingTables(db *sql.DB) error {
 	tables := [...]string{
 		"developer",
 		"sprint_backlog",
@@ -80,18 +82,18 @@ func dropTables(db *sql.DB) error {
 	return nil
 }
 
-func ClearTables() error {
-	credentials, err := extractCredentials()
+func ClearingTables() error {
+	credentials, err := extractingCredentials()
 	if err != nil {
 		return errors.Wrap(err, "failed to extract credentials")
 	}
 
-	db, err := connectToDatabase(credentials)
+	db, err := connectingToDatabase(credentials)
 	if err != nil {
 		return errors.Wrap(err, "failed to create new connection")
 	}
 
-	err = dropTables(db)
+	err = dropingTables(db)
 	if err != nil {
 		return err
 	}

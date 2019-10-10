@@ -1,0 +1,29 @@
+.background-container {
+		background-image: url("./images/index.png");
+		opacity: 0.99;
+		filter: alpha(opacity=99);
+		background-repeat: no-repeat;
+		background-size: cover;
+		background-attachment: scroll;
+}
+
+.main-content {
+		height: 100%;
+		margin-top: 10%;
+		justify-content: center;
+		align-items: center;
+}
+
+.main-button {
+		margin-top: 5%;
+		text-align: center;
+}
+
+.message {
+		font-size: 24pt;
+		text-align: center;
+}
+
+.button-font {
+		font-size: 18pt;
+}
