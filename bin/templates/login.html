@@ -6,6 +6,11 @@
 		<link rel="stylesheet" type="text/css" href="../static/css/login_style.css">
 	</head>
 	<body>
+		{{if .Success}}
+		<div>
+			<h1>Username is <bold>{{.Name}}</bold></h1>
+		</div>
+		{{else}}
 		<div>
 			<div class="header-align">
 				<h1>Log In</h1>
@@ -28,5 +33,6 @@
 				</form>
 			</div>
 		</div>
+		{{end}}
 	</body>
 </html>
