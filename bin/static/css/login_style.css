@@ -1,0 +1,19 @@
+.button-align {
+		text-align: center;
+}
+
+.field-align {
+		text-align: center;
+		margin: 2%;
+		margin-collapse: collapse;
+}
+
+.header-align {
+		text-align: center;
+		margin: 1%;
+}
+
+.form-align {
+		text-align: center;
+		margin: 1%;
+}

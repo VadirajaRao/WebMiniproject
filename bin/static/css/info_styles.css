@@ -1,0 +1,38 @@
+.background-container {
+		background-image: url("./images/index2.jpg");
+		opacity: 0.99;
+		filter: alpha(opacity=99);
+		background-repeat: no-repeat;
+		background-size: cover;
+		background-attachment: scroll;
+}
+
+.contents-block {
+		margin-top: 2%;
+		margin-left: 20%;
+		margin-right: 20%;
+		margin-bottom: 20%;
+}
+
+p {
+		text-align: justify;
+		font-size: 16pt;
+}
+
+h1 {
+		font-size: 40pt;
+		text-align: center;
+		margin: 2%;
+}
+
+h2 {
+		font-size: 30pt;
+}
+
+h3 {
+		font-size: 25pt;
+}
+
+a {
+		color: white;
+}
