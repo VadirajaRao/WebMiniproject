@@ -17,3 +17,7 @@
 .element {
 		margin-top: 4%;
 }
+
+.err-msg {
+		color: red;
+}

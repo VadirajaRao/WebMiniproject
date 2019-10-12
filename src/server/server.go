@@ -51,19 +51,37 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// This statement reads the value once the form is submitted.
 	name := r.FormValue("username")
+	pwd := r.FormValue("password")
 
 	// The following structure is used to send data back to the html page to show
 	// a particular message. These values are made use in the if-else block in
 	// login.html
 	type Variables struct {
 		Success bool
-		Name string
+		Uclear bool
+		Pclear bool
+		Username string
+		Password string
+		Msg string
 	}
 
-	x := Variables {
-		Success: true,
-			Name: name,
-		}
+	var x Variables
+
+	if name == "hello" && pwd == "123" {
+		http.Redirect(w, r, "/info", http.StatusFound)
+	}
+
+	x.Username = ""
+	x.Password = ""
+	x.Success = false
+
+	if name != "hello" {
+		x.Uclear = true
+		x.Msg = "Invalid username"
+	} else if pwd != "123" {
+		x.Pclear = true
+		x.Msg = "Invalid password"
+	}
 
 	t.Execute(w, x)
 }

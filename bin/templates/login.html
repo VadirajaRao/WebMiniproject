@@ -28,11 +28,6 @@
 				</li>
 			</ul>
 		</nav>
-		{{if .Success}}
-		<div>
-			<h1>Username is <bold>{{.Name}}</bold></h1>
-		</div>
-		{{else}}
 		<div class="form-container">
 			<div>
 				<h1>Log In</h1>
@@ -41,11 +36,18 @@
 				<form action="/login" method="POST">
 					<div class="form-group element">
 						<label for="uname">Username: </label>
-						<input type="text" name="username" placeholder="Username" id="uname">
+						<input type="text" name="username" placeholder="Username" id="uname" required>
+						{{if .Uclear}}
+						<p class="err-msg">{{.Msg}}</p>
+						{{end}}
 					</div>
+
 					<div class="form-group element">
 						<label for="pwd">Password: </label>
 						<input type="password" name="password" placeholder="Password" id="pwd">
+						{{if .Pclear}}
+						<p class="err-msg">{{.Msg}}</p>
+						{{end}}
 					</div>
 					<div class="form-group element">
 						<button type="submit" class="btn btn-primary btn-lg">
@@ -58,6 +60,5 @@
 				</div>
 			</div>
 		</div>
-		{{end}}
 	</body>
 </html>
