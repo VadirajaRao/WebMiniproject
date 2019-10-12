@@ -5,21 +5,4 @@
 		background-repeat: no-repeat;
 		background-size: cover;
 		background-attachment: fixed;
-		text-align: center;
-}
-
-.main-content {
-		margin-top: 15%;
-}
-
-.main-button {
-		margin-top: 5%;
-}
-
-.message {
-		font-size: 24pt;
-}
-
-.button-font {
-		font-size: 18pt;
 }

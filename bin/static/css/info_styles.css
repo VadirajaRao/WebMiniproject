@@ -4,14 +4,11 @@
 		filter: alpha(opacity=99);
 		background-repeat: no-repeat;
 		background-size: cover;
-		background-attachment: scroll;
+		background-attachment: fixed;
 }
 
 .contents-block {
-		margin-top: 2%;
-		margin-left: 20%;
-		margin-right: 20%;
-		margin-bottom: 20%;
+		margin: 5% 20% 15% 20%;
 }
 
 p {
