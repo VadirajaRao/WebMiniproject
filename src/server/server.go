@@ -68,6 +68,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, x)
 }
 
+func signupHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/signup.html"))
+	t.Execute(w, nil)
+}
+
 func main() {
 	// Checking for arguments passed from the command line
 	if len(os.Args) == 2 {
@@ -97,6 +102,7 @@ func main() {
 	r.HandleFunc("/", indexPageHandler)
 	r.HandleFunc("/info", informationPageHandler)
 	r.HandleFunc("/login", loginHandler)
+	r.HandleFunc("/signup", signupHandler)
 	
 	fs := http.FileServer(http.Dir("static"))
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
