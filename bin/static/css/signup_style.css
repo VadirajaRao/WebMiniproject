@@ -6,3 +6,31 @@
 		background-size: cover;
 		background-attachment: fixed;
 }
+
+.form-container {
+		margin: 5% 20% 5%;
+		background-color: rgba(255, 255, 255, 0.6);
+		padding: 2% 5%;
+}
+
+.collect {
+		display: flex;
+}
+
+h1 {
+		margin: 0% auto 5%;
+		text-align: center;
+}
+
+.element {
+		margin-right: 5%;
+}
+
+.button-align {
+		text-align: center;
+}
+
+.link-align {
+		text-align: center;
+		margin-top: 2%;
+}

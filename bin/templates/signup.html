@@ -28,7 +28,7 @@
 				</li>
 			</ul>
 		</nav>
-		<div>
+		<div class="form-container">
 			<!-- Heading -->
 			<div>
 				<h1>Sign Up</h1>
@@ -38,58 +38,64 @@
 			<div>
 				<form action="#" method="POST">
 					<!-- Firstname and Lastname -->
-					<div>
+					<div class="collect">
 						<!-- Firstname -->
-						<div>
-							<label>Firstname: </label>
-							<input type="text" name="fname" placeholder="First name">
+						<div class="form-group element">
+							<label>Firstname</label><br>
+							<input type="text" name="fname" placeholder="Enter firstname">
 						</div>
 						<!-- Lastname -->
-						<div>
-							<label>Lastname: </label>
-							<input type="text" name="lname" placeholder="Last name">
+						<div class="form-group element">
+							<label>Lastname</label><br>
+							<input type="text" name="lname" placeholder="Enter lastname">
 						</div>
 					</div>
 					
 					<!-- Username -->
-					<div>
-						<label>Username: </label>
-						<input type="text" name="uname" placeholder="Username">
+					<div class="form-group">
+						<label>Username</label><br>
+						<input type="text" name="uname" placeholder="Enter username">
 					</div>
 					
 					<!-- Mail id -->
-					<div>
-						<label>Email: </label>
+					<div class="form-group">
+						<label>Email</label><br>
 						<input type="text" name="mail" placeholder="xyz@example.com">
 					</div>
 					
 					<!-- Password and Re-type Password -->
-					<div>
+					<div class="collect">
 						<!-- Password -->
-						<div>
-							<label>Password: </label>
-							<input type="password" name="pwd" placeholder="Password">
+						<div class="form-group element">
+							<label>Password</label><br>
+							<input type="password" name="pwd" placeholder="Enter password">
 						</div>
 						<!-- Re-type Password -->
-						<div>
-							<label>Re-type Password: </label>
+						<div class="form-group element">
+							<label>Re-type Password</label><br>
 							<input type="password" name="rpwd" placeholder="Re-type Password">
 						</div>
 					</div>
 					
 					<!-- Product Name -->
-					<div>
-						<label>Product Name: </label>
+					<div class="form-group">
+						<label>Product Name</label><br>
 						<input type="text" name="pname" placeholder="SomthinCool">
 					</div>
 					
 					<!-- Submit -->
-					<div>
-						<button type="submit">
+					<div class="button-align">
+						<button type="submit" class="btn btn-primary btn-lg">
 							Sign-Up
 						</button>
 					</div>
 				</form>
+				<div class="link-align">
+					<p>
+						Already have an account?
+						<a href="/login">Log In</a>
+					</p>
+				</div>
 			</div>
 		</div>
 	</body>
