@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>ScrumIt | LogIn</title>
+		<title>ScrumIt | New Product</title>
+
 		<link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css">
-		<link rel="stylesheet" type="text/css" href="../static/css/login_style.css">
+		<link rel="stylesheet" type="text/css" href="../static/css/new_product_style.css">
 	</head>
 	<body class="background-container">
 		<nav class="navbar navbar-expand-sm bg-primary navbar-dark fixed-top">
@@ -35,35 +36,35 @@
 		</nav>
 		<div class="form-container">
 			<div>
-				<h1>Log In</h1>
+				<h1>New Product</h1>
 			</div>
-			<div>
-				<form action="/login" method="POST">
-					<div class="form-group element">
-						<label for="uname">Username: </label>
-						<input type="text" name="username" placeholder="Username" id="uname" required>
-						{{if .Uclear}}
-						<p class="err-msg">{{.Msg}}</p>
-						{{end}}
+
+			<div class="full-form">
+				<form action="#" method="POST">
+					<div class="form-group block element">
+						<label for="pname">Product Name</label>
+						<input type="text" name="pname" id="pname" placeholder="SomethinCool">
 					</div>
 
-					<div class="form-group element">
-						<label for="pwd">Password: </label>
-						<input type="password" name="password" placeholder="Password" id="pwd">
-						{{if .Pclear}}
-						<p class="err-msg">{{.Msg}}</p>
-						{{end}}
+					<div class="form-group block element">
+						<label for="omail">Owner email</label>
+						<input type="mail" name="omail" id="omail" placeholder="xyz@example.com">
 					</div>
-					<div class="form-group element">
+
+					<div class="form-group block element">
+						<label for="lmail">Scrum Master email</label>
+						<input type="mail" name="lmail" id="lmail" placeholder="xyz@example.com">
+					</div>
+
+					<div class="button-align">
 						<button type="submit" class="btn btn-primary btn-lg">
-							Log In
+							Create Product
 						</button>
 					</div>
 				</form>
-				<div class="element">
-					<p>New User? <a href="/signup">Sign Up</a></p>
-				</div>
 			</div>
 		</div>
 	</body>
 </html>
+
+	

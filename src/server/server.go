@@ -91,6 +91,11 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, nil)
 }
 
+func newProductHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/new_product.html"))
+	t.Execute(w, nil)
+}
+
 func main() {
 	// Checking for arguments passed from the command line
 	if len(os.Args) == 2 {
@@ -121,6 +126,7 @@ func main() {
 	r.HandleFunc("/info", informationPageHandler)
 	r.HandleFunc("/login", loginHandler)
 	r.HandleFunc("/signup", signupHandler)
+	r.HandleFunc("/newProduct", newProductHandler)
 	
 	fs := http.FileServer(http.Dir("static"))
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))

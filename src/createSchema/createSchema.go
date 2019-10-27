@@ -84,6 +84,7 @@ func CreatingTables() error {
       fname VARCHAR(100) NOT NULL,
       lname VARCHAR(100) NOT NULL,
       name VARCHAR(100) NOT NULL,
+      mail VARCHAR(100) NOT NULL,
       pwd VARCHAR(100) NOT NULL,
       PRIMARY KEY(uid)
     );`
