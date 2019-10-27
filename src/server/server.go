@@ -9,6 +9,7 @@ import (
 
 	"createSchema"
 	"clearSchema"
+	"writeValues"
 
 	"github.com/gorilla/mux"
 )
@@ -18,6 +19,15 @@ import (
 type Login struct {
 	Username string
 	Password string
+}
+
+type Signup struct {
+	Fname string
+	Lname string
+	Uname string
+	Pwd string
+	Rpwd string
+	Mail string
 }
 
 // Function to handle the main page.
@@ -86,8 +96,33 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, x)
 }
 
+// Function to handle the sign up function. This function will create a new user
+// by making entries into the database.
 func signupHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/signup.html"))
+	//t.Execute(w, nil)
+
+	if r.Method != http.MethodPost {
+		t.Execute(w, nil)
+		return
+	}
+
+	signupCred := writeValues.Signup {
+		Fname: r.FormValue("fname"),
+		Lname: r.FormValue("lname"),
+		Uname: r.FormValue("uname"),
+		Pwd: r.FormValue("pwd"),
+		Rpwd: r.FormValue("rpwd"),
+		Mail: r.FormValue("mail"),
+	}
+
+	err := writeValues.CreateUser(&signupCred)
+
+	if err != nil {
+		t.Execute(w, nil)
+	}
+
+	t = template.Must(template.ParseFiles("./templates/done.html"))
 	t.Execute(w, nil)
 }
 

@@ -4,6 +4,7 @@
 		<title>ScrumIt | Sign-Up</title>
 		<link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css">
 		<link rel="stylesheet" type="text/css" href="../static/css/signup_style.css">
+		<script type="text/javascript" src="../static/script/signup.js"></script>
 	</head>
 	<body class="background-container">
 		<nav class="navbar navbar-expand-sm bg-primary navbar-dark fixed-top">
@@ -41,7 +42,7 @@
 
 			<!-- Form beginning -->
 			<div>
-				<form action="#" method="POST">
+				<form name="signupForm" action="/signup" method="POST" onsubmit="return validate()">
 					<!-- Firstname and Lastname -->
 					<div class="collect">
 						<!-- Firstname -->
