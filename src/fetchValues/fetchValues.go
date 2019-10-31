@@ -1,4 +1,4 @@
-package writeValues
+package fetchValues
 
 import (
 	"database/sql"
@@ -9,21 +9,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-// LogIn represents the credetials for database login.
 type LogIn struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Database string `json:"dbname"`
-}
-
-// Signup represents the data for adding new user.
-type Signup struct {
-	Fname string
-	Lname string
-	Uname string
-	Pwd string
-	Rpwd string
-	Mail string
 }
 
 // extractCredentials extracts the login credentials from the JSON file.
@@ -63,6 +52,8 @@ func connectingToDatabase(credentials LogIn) (*sql.DB, error) {
 	return db, nil
 }
 
+// Function to create connection to the database before any operation is
+// performed.
 func setup() (*sql.DB, error) {
 	credentials, err := extractingCredentials()
 	if err != nil {
@@ -77,27 +68,29 @@ func setup() (*sql.DB, error) {
 	return db, nil
 }
 
-func CreateUser(signupCred *Signup) error{
+
+func LoginVerification(username string) (string, error) {
 	db, err := setup()
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	query := `
-		INSERT INTO user (fname, lname, name, mail, pwd) VALUES (?, ?, ?, ?, ?)
-  `
-	_, err = db.Exec(
-		query,
-		signupCred.Fname,
-		signupCred.Lname,
-		signupCred.Uname,
-		signupCred.Mail,
-		signupCred.Pwd,
+	var (
+		uid int
+		fname string
+		lname string
+		name string
+		mail string
+		pwd string
 	)
+	query := `SELECT * FROM user WHERE mail = ?`
 
+	err = db.QueryRow(query, username).Scan(
+		&uid, &fname, &lname, &name, &mail, &pwd,
+	)
 	if err != nil {
-		return errors.Wrap(err, "failed to insert into database.")
+		return "NoUser", errors.Wrap(err, "query execution failed")
 	}
 
-	return nil
+	return pwd, nil
 }

@@ -10,6 +10,7 @@ import (
 	"createSchema"
 	"clearSchema"
 	"writeValues"
+	"fetchValues"
 
 	"github.com/gorilla/mux"
 )
@@ -50,50 +51,61 @@ func informationPageHandler(w http.ResponseWriter, r *http.Request) {
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/login.html"))
 
-	// If the HTTP request is using GET method, then the login form will be loaded
 	if r.Method != http.MethodPost {
 		t.Execute(w, nil)
 		return
 	}
-	// The following section will be executed once the form has been submitted.
-	// Since the form uses POST method to submit the form content, the above
-	// section will not be executed.
 
-	// This statement reads the value once the form is submitted.
-	name := r.FormValue("username")
-	pwd := r.FormValue("password")
-
-	// The following structure is used to send data back to the html page to show
-	// a particular message. These values are made use in the if-else block in
-	// login.html
-	type Variables struct {
-		Success bool
-		Uclear bool
-		Pclear bool
-		Username string
-		Password string
-		Msg string
+	loginCred := Login {
+		Username: r.FormValue("username"),
+		Password: r.FormValue("password"),
 	}
 
-	var x Variables
-
-	if name == "hello" && pwd == "123" {
-		http.Redirect(w, r, "/info", http.StatusFound)
+	val, err := fetchValues.LoginVerification(loginCred.Username)
+	if err != nil && val != "NoUser" {
+		log.Fatal(err)
 	}
 
-	x.Username = ""
-	x.Password = ""
-	x.Success = false
+	if val == "NoUser" {
+		type UserMsg struct {
+			UFlag bool
+			Flag bool
+			PFlag bool
+			UMsg string
+		}
 
-	if name != "hello" {
-		x.Uclear = true
-		x.Msg = "Invalid username"
-	} else if pwd != "123" {
-		x.Pclear = true
-		x.Msg = "Invalid password"
+		x := UserMsg {
+			Flag: false,
+			UFlag: true,
+			PFlag: false,
+			UMsg: "Invalid Username",
+		}
+
+		t.Execute(w, x)
+		return
 	}
 
-	t.Execute(w, x)
+	if val != loginCred.Password {
+		type PwdMsg struct {
+			UFlag bool
+			PFlag bool
+			PMsg string
+			Flag bool
+		}
+		
+		x := PwdMsg {
+			UFlag: false,
+			PFlag: true,
+			PMsg: "Incorrect Password",
+			Flag: false,
+		}
+
+		t.Execute(w, x)
+		return
+	}
+
+	t = template.Must(template.ParseFiles("./templates/done.html"))
+	t.Execute(w, nil)
 }
 
 // Function to handle the sign up function. This function will create a new user

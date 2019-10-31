@@ -42,26 +42,32 @@
 					<div class="form-group element">
 						<label for="uname">Username: </label>
 						<input type="text" name="username" placeholder="Username" id="uname" required>
-						{{if .Uclear}}
-						<p class="err-msg">{{.Msg}}</p>
+						{{if .UFlag}}
+						<p class="err-msg">{{.UMsg}}</p>
 						{{end}}
 					</div>
 
 					<div class="form-group element">
 						<label for="pwd">Password: </label>
 						<input type="password" name="password" placeholder="Password" id="pwd">
-						{{if .Pclear}}
-						<p class="err-msg">{{.Msg}}</p>
+						{{if .PFlag}}
+						<p class="err-msg">{{.PMsg}}</p>
 						{{end}}
 					</div>
 					<div class="form-group element">
 						<button type="submit" class="btn btn-primary btn-lg">
 							Log In
 						</button>
+						{{if .Flag}}
+						<p>Something</p>
+						{{end}}
 					</div>
 				</form>
 				<div class="element">
 					<p>New User? <a href="/signup">Sign Up</a></p>
+					{{if .Flag}}
+					<p>Something</p>
+					{{end}}
 				</div>
 			</div>
 		</div>
