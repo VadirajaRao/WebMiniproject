@@ -67,6 +67,9 @@
 					<div class="form-group">
 						<label for="mail">Email</label><br>
 						<input type="text" name="mail" id="mail" placeholder="xyz@example.com">
+						{{if .MFlag}}
+						<script>alert("This mail-id already exists")</script>
+						{{end}}
 					</div>
 					
 					<!-- Password and Re-type Password -->
@@ -75,11 +78,17 @@
 						<div class="form-group element">
 							<label for="pwd">Password</label><br>
 							<input type="password" name="pwd" id="pwd" placeholder="Enter password">
+							{{if .Flag}}
+							<p>z</p>
+							{{end}}
 						</div>
 						<!-- Re-type Password -->
 						<div class="form-group element">
 							<label for="rpwd">Re-type Password</label><br>
 							<input type="password" name="rpwd" id="rpwd" placeholder="Re-type Password">
+							{{if .Flag}}
+							<p>z</p>
+							{{end}}
 						</div>
 					</div>
 					
@@ -95,6 +104,9 @@
 						<button type="submit" class="btn btn-primary btn-lg">
 							Sign-Up
 						</button>
+						{{if .Flag}}
+						<p>z</p>
+						{{end}}
 					</div>
 				</form>
 				<div class="link-align">
@@ -102,6 +114,9 @@
 						Already have an account?
 						<a href="/login">Log In</a>
 					</p>
+					{{if .Flag}}
+					<p>z</p>
+					{{end}}
 				</div>
 			</div>
 		</div>

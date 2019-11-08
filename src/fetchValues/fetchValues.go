@@ -69,7 +69,7 @@ func setup() (*sql.DB, error) {
 }
 
 
-func LoginVerification(username string) (string, error) {
+func LoginVerification(usermail string) (string, error) {
 	db, err := setup()
 	if err != nil {
 		return "", err
@@ -85,7 +85,7 @@ func LoginVerification(username string) (string, error) {
 	)
 	query := `SELECT * FROM user WHERE mail = ?`
 
-	err = db.QueryRow(query, username).Scan(
+	err = db.QueryRow(query, usermail).Scan(
 		&uid, &fname, &lname, &name, &mail, &pwd,
 	)
 	if err != nil {
@@ -93,4 +93,31 @@ func LoginVerification(username string) (string, error) {
 	}
 
 	return pwd, nil
+}
+
+func CheckMail(usermail string) (bool, error) {
+	db, err := setup()
+	if err != nil {
+		return false, err
+	}
+
+	var (
+		uid int
+		fname string
+		lname string
+		name string
+		mail string
+		pwd string
+	)
+
+	query := "SELECT * FROM user WHERE mail = ?"
+
+	err = db.QueryRow(query, usermail).Scan(
+		&uid, &fname, &lname, &name, &mail, &pwd,
+	)
+	if err != nil {
+		return false, errors.Wrap(err, "query execution failed")
+	}
+
+	return true, nil
 }

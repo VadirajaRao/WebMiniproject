@@ -18,7 +18,7 @@ import (
 // This structure is used to store the login information submitted by the user
 // in the login.html form.
 type Login struct {
-	Username string
+	Usermail string
 	Password string
 }
 
@@ -29,6 +29,18 @@ type Signup struct {
 	Pwd string
 	Rpwd string
 	Mail string
+}
+
+type Msg struct {
+	UFlag bool
+	PFlag bool
+	Flag bool
+	Msg string
+}
+
+type SignMsg struct {
+	MFlag bool
+	Flag bool
 }
 
 // Function to handle the main page.
@@ -57,28 +69,22 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	loginCred := Login {
-		Username: r.FormValue("username"),
+		Usermail: r.FormValue("usermail"),
 		Password: r.FormValue("password"),
 	}
 
-	val, err := fetchValues.LoginVerification(loginCred.Username)
+	val, err := fetchValues.LoginVerification(loginCred.Usermail)
+
 	if err != nil && val != "NoUser" {
 		log.Fatal(err)
 	}
 
 	if val == "NoUser" {
-		type UserMsg struct {
-			UFlag bool
-			Flag bool
-			PFlag bool
-			UMsg string
-		}
-
-		x := UserMsg {
+		x := Msg {
 			Flag: false,
 			UFlag: true,
 			PFlag: false,
-			UMsg: "Invalid Username",
+			Msg: "Invalid email",
 		}
 
 		t.Execute(w, x)
@@ -86,17 +92,10 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if val != loginCred.Password {
-		type PwdMsg struct {
-			UFlag bool
-			PFlag bool
-			PMsg string
-			Flag bool
-		}
-		
-		x := PwdMsg {
+		x := Msg {
 			UFlag: false,
 			PFlag: true,
-			PMsg: "Incorrect Password",
+			Msg: "Incorrect Password",
 			Flag: false,
 		}
 
@@ -128,7 +127,22 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		Mail: r.FormValue("mail"),
 	}
 
-	err := writeValues.CreateUser(&signupCred)
+	val, err := fetchValues.CheckMail(signupCred.Mail)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if val == true {
+		x := SignMsg {
+			MFlag: true,
+			Flag: false,
+		}
+		
+		t.Execute(w, x)
+		return
+	}
+
+	err = writeValues.CreateUser(&signupCred)
 
 	if err != nil {
 		t.Execute(w, nil)

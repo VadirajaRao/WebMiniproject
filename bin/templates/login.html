@@ -41,17 +41,17 @@
 				<form action="/login" method="POST">
 					<div class="form-group element">
 						<label for="uname">Username: </label>
-						<input type="text" name="username" placeholder="Username" id="uname" required>
+						<input type="text" name="usermail" placeholder="Mail-id" id="uname" required>
 						{{if .UFlag}}
-						<p class="err-msg">{{.UMsg}}</p>
+						<p class="err-msg">{{.Msg}}</p>
 						{{end}}
 					</div>
 
 					<div class="form-group element">
 						<label for="pwd">Password: </label>
-						<input type="password" name="password" placeholder="Password" id="pwd">
+						<input type="password" name="password" placeholder="Password" id="pwd" required>
 						{{if .PFlag}}
-						<p class="err-msg">{{.PMsg}}</p>
+						<p class="err-msg">{{.Msg}}</p>
 						{{end}}
 					</div>
 					<div class="form-group element">
