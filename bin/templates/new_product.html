@@ -49,11 +49,25 @@
 					<div class="form-group block element">
 						<label for="omail">Owner email</label>
 						<input type="mail" name="omail" id="omail" placeholder="xyz@example.com">
+						{{if .Oflag}}
+						<script>
+							alert(
+									"This user is already an owner of one product. Please choose someone else"
+							)
+						</script>
+						{{end}}
 					</div>
 
 					<div class="form-group block element">
 						<label for="lmail">Scrum Master email</label>
 						<input type="mail" name="lmail" id="lmail" placeholder="xyz@example.com">
+						{{if .Lflag}}
+						<script>
+							alert(
+									"This user is already a leader of one product. Please choose someone else"
+							)
+						</script>
+						{{end}}
 					</div>
 
 					<div class="button-align">

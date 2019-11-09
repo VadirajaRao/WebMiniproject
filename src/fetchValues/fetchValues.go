@@ -68,7 +68,8 @@ func setup() (*sql.DB, error) {
 	return db, nil
 }
 
-
+// Function to check if the mail id is valid and then returns the password
+// associated with that mail id.
 func LoginVerification(usermail string) (string, error) {
 	db, err := setup()
 	if err != nil {
@@ -95,7 +96,9 @@ func LoginVerification(usermail string) (string, error) {
 	return pwd, nil
 }
 
-func CheckMail(usermail string) (bool, error) {
+// Function to check if the mail id already exists in the database and returns a
+// boolean value. The presence of user is checked in `user` table.
+func CheckMailInUser(usermail string) (bool, error) {
 	db, err := setup()
 	if err != nil {
 		return false, err
@@ -115,6 +118,74 @@ func CheckMail(usermail string) (bool, error) {
 	err = db.QueryRow(query, usermail).Scan(
 		&uid, &fname, &lname, &name, &mail, &pwd,
 	)
+	if err != nil {
+		return false, errors.Wrap(err, "query execution failed")
+	}
+
+	return true, nil
+}
+
+// Function to return the UID of a particular mail, if the mail id exists in the
+// database.
+func FetchUID(usermail string) (int, error) {
+	db, err := setup()
+	if err != nil {
+		return 0, err
+	}
+
+	var uid int
+
+	query := "SELECT uid FROM user WHERE mail = ?"
+
+	err = db.QueryRow(query, usermail).Scan(&uid)
+	if err != nil {
+		return 0, errors.Wrap(err, "unable to retrieve UID")
+	}
+
+	return uid, nil
+}
+
+// Function to check if the mail id already exists in the database and returns a
+// boolean value. The presence of user is checked in `product` table.
+func CheckOwnerMailInProduct(usermail string) (bool, error) {
+	db, err := setup()
+	if err != nil {
+		return false, err
+	}
+
+	uid, err := FetchUID(usermail)
+	if err != nil {
+		return false, err
+	}
+
+	var pid int
+
+	query := "SELECT pid FROM product WHERE ouid = ?"
+	err = db.QueryRow(query, uid).Scan(&pid)
+	if err != nil {
+		return false, errors.Wrap(err, "query execution failed")
+	}
+
+	return true, nil
+}
+
+// Function to check if the mail id already exists in the database and returns a
+// boolean value. The presence of user is checked in `product` table.
+func CheckLeaderMailInProduct(usermail string) (bool, error) {
+	db, err := setup()
+	if err != nil {
+		return false, err
+	}
+
+	uid, err := FetchUID(usermail)
+	if err != nil {
+		return false, err
+	}
+
+	var pid int
+
+	query := "SELECT pid FROM product WHERE luid = ?"
+	err = db.QueryRow(query, uid).Scan(&pid)
 	if err != nil {
 		return false, errors.Wrap(err, "query execution failed")
 	}

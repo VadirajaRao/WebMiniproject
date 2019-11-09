@@ -5,3 +5,4 @@ bin/package-lock.json
 bin/server
 bin/credentials.json
 ignore.txt
+bin/build.sh

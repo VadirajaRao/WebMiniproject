@@ -26,6 +26,13 @@ type Signup struct {
 	Mail string
 }
 
+// Product information representation
+type Product struct {
+	Pname string
+	Ouid  int
+	Luid  int
+}
+
 // extractCredentials extracts the login credentials from the JSON file.
 func extractingCredentials() (LogIn, error) {
 	// ReadAll is used to read login credentials from the JSON file.
@@ -77,6 +84,9 @@ func setup() (*sql.DB, error) {
 	return db, nil
 }
 
+
+// Function to make a new entry into the `USER` table which is used to store the
+// information about a user.
 func CreateUser(signupCred *Signup) error{
 	db, err := setup()
 	if err != nil {
@@ -97,6 +107,30 @@ func CreateUser(signupCred *Signup) error{
 
 	if err != nil {
 		return errors.Wrap(err, "failed to insert into database.")
+	}
+
+	return nil
+}
+
+// Function to make a new entry into the `PRODUCT` table which is used to store
+// the information about a product
+func CreateProduct(productCred *Product) error {
+	db, err := setup()
+	if err != nil {
+		return err
+	}
+
+	query := "INSERT INTO product (pname, ouid, luid) VALUES (?, ?, ?)"
+
+	_, err = db.Exec (
+		query,
+		productCred.Pname,
+		productCred.Ouid,
+		productCred.Luid,
+	)
+
+	if err != nil {
+		return err
 	}
 
 	return nil

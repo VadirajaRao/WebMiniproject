@@ -22,6 +22,8 @@ type Login struct {
 	Password string
 }
 
+// This structure is used to store the sign up information submitted by the user
+// in the signup.html form.
 type Signup struct {
 	Fname string
 	Lname string
@@ -29,6 +31,14 @@ type Signup struct {
 	Pwd string
 	Rpwd string
 	Mail string
+}
+
+// This structure is used to store the new product information submitted by the
+// user in the new_product.html form.
+type ProductDetails struct {
+	Pname string
+	Omail string
+	Lmail string
 }
 
 type Msg struct {
@@ -127,7 +137,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		Mail: r.FormValue("mail"),
 	}
 
-	val, err := fetchValues.CheckMail(signupCred.Mail)
+	val, err := fetchValues.CheckMailInUser(signupCred.Mail)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -154,6 +164,74 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 
 func newProductHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/new_product.html"))
+	//t.Execute(w, nil)
+
+	if r.Method != http.MethodPost {
+		t.Execute(w, nil)
+		return
+	}
+
+	type ProductMsg struct {
+		Oflag bool
+		Lflag bool
+	}
+
+	productCred := ProductDetails {
+		Pname: r.FormValue("pname"),
+		Omail: r.FormValue("omail"),
+		Lmail: r.FormValue("lmail"),
+	}
+
+	var finProdCred writeValues.Product
+
+	finProdCred.Pname = productCred.Pname
+
+	val, err := fetchValues.CheckOwnerMailInProduct(productCred.Omail)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if val == true {
+		x := ProductMsg {
+			Oflag: true,
+			Lflag: false,
+		}
+
+		t.Execute(w, x)
+		return
+	}
+
+	finProdCred.Ouid, err = fetchValues.FetchUID(productCred.Omail)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	val, err = fetchValues.CheckLeaderMailInProduct(productCred.Lmail)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if val == true {
+		x := ProductMsg {
+			Oflag: false,
+			Lflag: true,
+		}
+
+		t.Execute(w, x)
+		return
+	}
+
+	finProdCred.Luid, err = fetchValues.FetchUID(productCred.Lmail)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = writeValues.CreateProduct(&finProdCred)
+	if err != nil {
+		t.Execute(w, nil)
+	}
+
+	t = template.Must(template.ParseFiles("./templates/done.html"))
 	t.Execute(w, nil)
 }
 
