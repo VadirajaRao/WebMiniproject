@@ -192,3 +192,22 @@ func CheckLeaderMailInProduct(usermail string) (bool, error) {
 
 	return true, nil
 }
+
+// Just a temp function
+func CheckEmpty(uid int) error {
+	db, err := setup()
+	if err != nil {
+		return err
+	}
+
+	query := "SELECT pid FROM developer WHERE uid = ?"
+
+	var pid int
+	
+	err = db.QueryRow(query, uid).Scan(&pid)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -11,6 +11,7 @@ import (
 	"clearSchema"
 	"writeValues"
 	"fetchValues"
+	"auth"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -22,8 +23,20 @@ var store = sessions.NewCookieStore([]byte("MT-15vsR15"))
 // Function to handle the main page.
 // This is where the application begins
 func indexPageHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/index.html"))
+	session, err := store.Get(r, "session-name-1")
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	session.Values["user"] = -1
+	session.Values["authenticated"] = false
+
+	err = session.Save(r, w)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	t := template.Must(template.ParseFiles("./templates/index.html"))
 	t.Execute(w, nil)
 }
 
@@ -32,6 +45,29 @@ func informationPageHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/info.html"))
 
 	t.Execute(w, nil)
+}
+
+// Function to retrieve handle for redirection
+func retrievingHandle(uid int) (string, error) {
+	flag, err := auth.CheckIfOwner(uid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if flag == true {
+		return "/owner", nil
+	}
+
+	flag, err = auth.CheckIfLeader(uid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if flag == true {
+		return "/master", nil
+	}
+
+	return "/dev", nil
 }
 
 // Function to handle the login page
@@ -98,7 +134,12 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	http.Redirect(w, r, "/main", http.StatusFound)
+	handle, err := retrievingHandle(session.Values["user"].(int))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	http.Redirect(w, r, handle, http.StatusFound)
 }
 
 // Function to handle the sign up function. This function will create a new user
@@ -228,9 +269,21 @@ func newProductHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, nil)
 }
 
-// Function to handl main page
-func mainHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/main.html"))
+// Function to handle owner page
+func ownerHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/owner.html"))
+	t.Execute(w, nil)
+}
+
+// Function to hande leader page
+func masterHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/leader.html"))
+	t.Execute(w, nil)
+}
+
+// Function to handle dev page
+func devHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/dev.html"))
 	t.Execute(w, nil)
 }
 
@@ -283,7 +336,9 @@ func main() {
 	r.HandleFunc("/login", loginHandler)
 	r.HandleFunc("/signup", signupHandler)
 	r.HandleFunc("/newProduct", newProductHandler)
-	r.HandleFunc("/main", mainHandler)
+	r.HandleFunc("/owner", ownerHandler)
+	r.HandleFunc("/master", masterHandler)
+	r.HandleFunc("/dev", devHandler)
 	r.HandleFunc("/logout", logoutHandler)
 	
 	fs := http.FileServer(http.Dir("static"))
