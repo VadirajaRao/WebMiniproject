@@ -275,15 +275,89 @@ func ownerHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, nil)
 }
 
+// Function to handle owner product backlog page
+func ownerBacklogHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/owner_backlog.html"))
+	t.Execute(w, nil)
+}
+
+// Function to handle owner adding feature page
+func ownerAddHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/owner_add.html"))
+	t.Execute(w, nil)
+}
+
+// Function to handle owner remove feature page
+func ownerRemHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/owner_remove.html"))
+	t.Execute(w, nil)
+}
+
 // Function to hande leader page
 func masterHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/leader.html"))
 	t.Execute(w, nil)
 }
 
+// Function to handle leader product backlog page
+func masterProdBacklogHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/leader_prod_backlog.html"))
+	t.Execute(w, nil)
+}
+
+// Function to handle leader sprint backlog page
+func masterSprintBacklogHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(
+		template.ParseFiles("./templates/leader_sprint_backlog.html"),
+	)
+	t.Execute(w, nil)
+}
+
+// Function to handle leader add feature page
+func masterAddFeatureHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/leader_add_feature.html"))
+	t.Execute(w, nil)
+}
+
+// Function to handle leader remove feature rpage
+func masterRemoveFeatureHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/leader_rem_feature.html"))
+	t.Execute(w, nil)
+}
+
+// Function to handle leader manage developer page
+func masterManageDevHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/leader_manage.html"))
+	t.Execute(w, nil)
+}
+
 // Function to handle dev page
 func devHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/dev.html"))
+	t.Execute(w, nil)
+}
+
+// Function to handle dev sprint backlog page
+func devSprintBacklogHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/dev_sprint_backlog.html"))
+	t.Execute(w, nil)
+}
+
+// Function to handle dev progress handler
+func devProgressHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/dev_progress.html"))
+	t.Execute(w, nil)
+}
+
+// Function to handle dev manage task handler
+func devManageHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/dev_manage.html"))
+	t.Execute(w, nil)
+}
+
+// Function to handle dev completed handler
+func devCompletedHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/dev_completed.html"))
 	t.Execute(w, nil)
 }
 
@@ -336,9 +410,25 @@ func main() {
 	r.HandleFunc("/login", loginHandler)
 	r.HandleFunc("/signup", signupHandler)
 	r.HandleFunc("/newProduct", newProductHandler)
+
 	r.HandleFunc("/owner", ownerHandler)
+	r.HandleFunc("/owner/backlog", ownerBacklogHandler)
+	r.HandleFunc("/owner/add-feature", ownerAddHandler)
+	r.HandleFunc("/owner/remove-feature", ownerRemHandler)
+
 	r.HandleFunc("/master", masterHandler)
+	r.HandleFunc("/master/prod-backlog", masterProdBacklogHandler)
+	r.HandleFunc("/master/sprint-backlog", masterSprintBacklogHandler)
+	r.HandleFunc("/master/add-feature", masterAddFeatureHandler)
+	r.HandleFunc("/master/remove-feature", masterRemoveFeatureHandler)
+	r.HandleFunc("/master/manage-developers", masterManageDevHandler)
+	
 	r.HandleFunc("/dev", devHandler)
+	r.HandleFunc("/dev/sprint-backlog", devSprintBacklogHandler)
+	r.HandleFunc("/dev/in-progress", devProgressHandler)
+	r.HandleFunc("/dev/manage-task", devManageHandler)
+	r.HandleFunc("/dev/completed", devCompletedHandler)
+
 	r.HandleFunc("/logout", logoutHandler)
 	
 	fs := http.FileServer(http.Dir("static"))
