@@ -13,7 +13,11 @@ import (
 	"fetchValues"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 )
+
+// Session key initialization. (hide)
+var store = sessions.NewCookieStore([]byte("MT-15vsR15"))
 
 // This structure is used to store the login information submitted by the user
 // in the login.html form.
@@ -41,6 +45,8 @@ type ProductDetails struct {
 	Lmail string
 }
 
+// This structure is used to pass message to the `login.html` page to indicate
+// incorrect input.
 type Msg struct {
 	UFlag bool
 	PFlag bool
@@ -48,9 +54,18 @@ type Msg struct {
 	Msg string
 }
 
+// This structure is used to pass message to the `signup.html` page to indicate
+// incorrect input.
 type SignMsg struct {
 	MFlag bool
 	Flag bool
+}
+
+// This structure is used to pass message to the `product.html` page to indicate
+// incorrect input.
+type ProductMsg struct {
+	Oflag bool
+	Lflag bool
 }
 
 // Function to handle the main page.
@@ -70,10 +85,18 @@ func informationPageHandler(w http.ResponseWriter, r *http.Request) {
 
 // Function to handle the login page
 // This function verifies the user who wants to login to his/her account.
-func loginHandler(w http.ResponseWriter, r *http.Request) {
+func loginHandler(w http.ResponseWriter, r *http.Request) {	
+	session, err := store.Get(r, "session-name-1")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	t := template.Must(template.ParseFiles("./templates/login.html"))
 
 	if r.Method != http.MethodPost {
+		if session.Values["authenticated"] == true {
+			http.Redirect(w, r, "/main", http.StatusFound)
+		}
 		t.Execute(w, nil)
 		return
 	}
@@ -113,15 +136,24 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t = template.Must(template.ParseFiles("./templates/done.html"))
-	t.Execute(w, nil)
+	session.Values["user"], err = fetchValues.FetchUID(loginCred.Usermail)
+	if err != nil {
+		log.Fatal(err)
+	}
+	session.Values["authenticated"] = true
+
+	err = session.Save(r, w)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	http.Redirect(w, r, "/main", http.StatusFound)
 }
 
 // Function to handle the sign up function. This function will create a new user
 // by making entries into the database.
 func signupHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/signup.html"))
-	//t.Execute(w, nil)
 
 	if r.Method != http.MethodPost {
 		t.Execute(w, nil)
@@ -162,51 +194,34 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, nil)
 }
 
-func newProductHandler(w http.ResponseWriter, r *http.Request) {
+// Function to retrieve UID of the owner of the product
+func retrievingOwnerUID(mail string, w http.ResponseWriter) (int, error) {
 	t := template.Must(template.ParseFiles("./templates/new_product.html"))
-	//t.Execute(w, nil)
-
-	if r.Method != http.MethodPost {
-		t.Execute(w, nil)
-		return
-	}
-
-	type ProductMsg struct {
-		Oflag bool
-		Lflag bool
-	}
-
-	productCred := ProductDetails {
-		Pname: r.FormValue("pname"),
-		Omail: r.FormValue("omail"),
-		Lmail: r.FormValue("lmail"),
-	}
-
-	var finProdCred writeValues.Product
-
-	finProdCred.Pname = productCred.Pname
-
-	val, err := fetchValues.CheckOwnerMailInProduct(productCred.Omail)
+	
+	val, err := fetchValues.CheckOwnerMailInProduct(mail)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	if val == true {
 		x := ProductMsg {
 			Oflag: true,
 			Lflag: false,
 		}
 
-		t.Execute(w, x)
-		return
+		t.Execute(w,x)
+		return 0, nil
 	}
 
-	finProdCred.Ouid, err = fetchValues.FetchUID(productCred.Omail)
-	if err != nil {
-		log.Fatal(err)
-	}
+	uid, err := fetchValues.FetchUID(mail)
 
-	val, err = fetchValues.CheckLeaderMailInProduct(productCred.Lmail)
+	return uid, err
+}
+
+// Function to retrieve UID of the leader of the product
+func retrievingLeaderUID(mail string, w http.ResponseWriter) (int, error) {
+	t := template.Must(template.ParseFiles("./templates/new_product.html"))
+	
+	val, err := fetchValues.CheckLeaderMailInProduct(mail)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -218,10 +233,37 @@ func newProductHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		t.Execute(w, x)
-		return
+		return 0, nil
 	}
 
-	finProdCred.Luid, err = fetchValues.FetchUID(productCred.Lmail)
+	uid, err := fetchValues.FetchUID(mail)
+
+	return uid, err
+}
+
+// Function to handle `new_product.html` or creation of new product page.
+func newProductHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/new_product.html"))
+	if r.Method != http.MethodPost {
+		t.Execute(w, nil)
+		return
+	}
+	productCred := ProductDetails {
+		Pname: r.FormValue("pname"),
+		Omail: r.FormValue("omail"),
+		Lmail: r.FormValue("lmail"),
+	}
+	var finProdCred writeValues.Product
+	finProdCred.Pname = productCred.Pname
+
+	var err error
+
+	finProdCred.Ouid, err = retrievingOwnerUID(productCred.Omail, w)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	finProdCred.Luid, err = retrievingLeaderUID(productCred.Lmail, w)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -233,6 +275,30 @@ func newProductHandler(w http.ResponseWriter, r *http.Request) {
 
 	t = template.Must(template.ParseFiles("./templates/done.html"))
 	t.Execute(w, nil)
+}
+
+// Function to handl main page
+func mainHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./templates/main.html"))
+	t.Execute(w, nil)
+}
+
+// Function to logout an user
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "session-name-1")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	session.Values["user"] = -1
+	session.Values["authenticated"] = false
+
+	err = session.Save(r, w)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func main() {
@@ -266,6 +332,8 @@ func main() {
 	r.HandleFunc("/login", loginHandler)
 	r.HandleFunc("/signup", signupHandler)
 	r.HandleFunc("/newProduct", newProductHandler)
+	r.HandleFunc("/main", mainHandler)
+	r.HandleFunc("/logout", logoutHandler)
 	
 	fs := http.FileServer(http.Dir("static"))
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
