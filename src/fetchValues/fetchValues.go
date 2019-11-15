@@ -15,6 +15,10 @@ type LogIn struct {
 	Database string `json:"dbname"`
 }
 
+type Backlog struct {
+	Feature string
+}
+
 // extractCredentials extracts the login credentials from the JSON file.
 func extractingCredentials() (LogIn, error) {
 	// ReadAll is used to read login credentials from the JSON file.
@@ -191,6 +195,61 @@ func CheckLeaderMailInProduct(usermail string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// Function to retrieve the PID based on the owner UID
+func FetchPID(uid int) (int, error) {
+	var pid int
+	
+	db, err := setup()
+	if err != nil {
+		return -1, err
+	}
+
+	query := "SELECT pid FROM product WHERE ouid = ?"
+
+	err = db.QueryRow(query, uid).Scan(&pid)
+	if err != nil {
+		return -1, err
+	}
+
+	return pid, nil
+}
+
+// Function to retrieve the product backlog based on PID
+func FetchingProdLog(pid int) ([]Backlog, error) {
+	db, err := setup()
+	if err != nil {
+		return nil, err
+	}
+
+	query := "SELECT issue FROM product_backlog WHERE pid = ?"
+
+	rows, err := db.Query(query, pid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var backlog []Backlog
+
+	for rows.Next() {
+		var log Backlog
+
+		err := rows.Scan(&log.Feature)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to process a row")
+		}
+
+		backlog = append(backlog, log)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed after processing rows")
+	}
+
+	return backlog, nil
 }
 
 // Just a temp function

@@ -135,3 +135,38 @@ func CreateProduct(productCred *Product) error {
 
 	return nil
 }
+
+// Function to make a new entry into the `PRODUCT_BACKLOG` table which is used to
+// store the information regarding the features requested by the owner.
+func ProdLogEntry(pid int, issue string) (error) {
+	db, err := setup()
+	if err != nil {
+		return err
+	}
+
+	query := "INSERT INTO product_backlog (pid, issue) VALUES (?, ?)"
+
+	_, err = db.Exec(query, pid, issue)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Function to remove an entry from the product backlog
+func DroppingProdLog(pid int, issue string) (error) {
+	db, err := setup()
+	if err != nil {
+		return err
+	}
+
+	query := "DELETE FROM product_backlog WHERE pid = ? AND issue = ?"
+
+	_, err = db.Exec(query, pid, issue)
+	if err != nil {
+		return errors.Wrap(err, "failed to find the record")
+	}
+
+	return nil
+}

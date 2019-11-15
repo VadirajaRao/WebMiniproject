@@ -32,6 +32,13 @@
 					</a>
 				</li>
 		</nav>
-		<h1 style="margin-top: 5%">This is owner backlog page</h1>
+		<div style="margin-top: 10%">
+			<table>
+				<th>Features in pipeline</th>
+				{{range .backlog}}
+				  <td>{{.}}</td>
+				{{end}}
+			</table>
+		</div>
 	</body>
 </html>

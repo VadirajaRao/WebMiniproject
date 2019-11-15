@@ -55,7 +55,7 @@ func retrievingHandle(uid int) (string, error) {
 	}
 
 	if flag == true {
-		return "/owner", nil
+		return "/owner/backlog", nil
 	}
 
 	flag, err = auth.CheckIfLeader(uid)
@@ -64,10 +64,10 @@ func retrievingHandle(uid int) (string, error) {
 	}
 
 	if flag == true {
-		return "/master", nil
+		return "/master/prod-backlog", nil
 	}
 
-	return "/dev", nil
+	return "/dev/sprint-backlog", nil
 }
 
 // Function to handle the login page
@@ -82,7 +82,12 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodPost {
 		if session.Values["authenticated"] == true {
-			http.Redirect(w, r, "/main", http.StatusFound)
+			handle, err := retrievingHandle(session.Values["user"].(int))
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			http.Redirect(w, r, handle, http.StatusFound)
 		}
 		t.Execute(w, nil)
 		return
@@ -269,35 +274,119 @@ func newProductHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, nil)
 }
 
-// Function to handle owner page
-func ownerHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/owner.html"))
-	t.Execute(w, nil)
-}
-
 // Function to handle owner product backlog page
 func ownerBacklogHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/owner_backlog.html"))
-	t.Execute(w, nil)
+	/*
+  t.Execute(w, nil)
+
+	if r.Method != http.MethoPost {
+		t.Execute(w, nil)
+		return
+	}
+  */
+
+	session, err := store.Get(r, "session-name-1")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fetching PID of the product
+	pid, err := fetchValues.FetchPID(session.Values["user"].(int))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fetching the product backlog
+	// Take care when the product has no logs initially.
+	// Maybe redirect to add feature page directly in case there is no entry.
+	backlog, err := fetchValues.FetchingProdLog(pid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, log := range backlog {
+		fmt.Println(log.Feature)
+	}
+
+	t.Execute(w, backlog)
 }
 
 // Function to handle owner adding feature page
 func ownerAddHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/owner_add.html"))
-	t.Execute(w, nil)
+
+	if r.Method != http.MethodPost {
+		t.Execute(w, nil)
+		return
+	}
+
+	session, err := store.Get(r, "session-name-1")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fetching the PID of the product.
+	pid, err := fetchValues.FetchPID(session.Values["user"].(int))
+	// Unable to find the product corresponding to the user. Handle the error.
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Taking the feature submitted by the user.
+	// In case the priority level has to be added create a structure for this.
+	issue := r.FormValue("feature")
+
+	// Adding the feature into the database.
+	// Create an error handler saying unable to add feature.
+	err = writeValues.ProdLogEntry(pid, issue)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	http.Redirect(w, r, "/owner/backlog", http.StatusFound)
 }
 
 // Function to handle owner remove feature page
 func ownerRemHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/owner_remove.html"))
-	t.Execute(w, nil)
+
+	if r.Method != http.MethodPost {
+		t.Execute(w, nil)
+		return
+	}
+
+	session, err := store.Get(r, "session-name-1")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fetching PID of the owner
+	pid, err := fetchValues.FetchPID(session.Values["user"].(int))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Taking the feature to be deleted
+	issue := r.FormValue("feature")
+
+	// Deleting the feature from the backlog
+	// Create a modification package
+	err = writeValues.DroppingProdLog(pid, issue)
+	if err != nil {
+		log.Fatal(err) // unable to find the record
+	}
+
+	http.Redirect(w, r, "/owner/backlog", http.StatusFound)
 }
 
+/*
 // Function to hande leader page
 func masterHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/leader.html"))
 	t.Execute(w, nil)
 }
+*/
 
 // Function to handle leader product backlog page
 func masterProdBacklogHandler(w http.ResponseWriter, r *http.Request) {
@@ -331,11 +420,13 @@ func masterManageDevHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, nil)
 }
 
+/*
 // Function to handle dev page
 func devHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/dev.html"))
 	t.Execute(w, nil)
 }
+*/
 
 // Function to handle dev sprint backlog page
 func devSprintBacklogHandler(w http.ResponseWriter, r *http.Request) {
@@ -411,19 +502,19 @@ func main() {
 	r.HandleFunc("/signup", signupHandler)
 	r.HandleFunc("/newProduct", newProductHandler)
 
-	r.HandleFunc("/owner", ownerHandler)
+	//r.HandleFunc("/owner", ownerHandler)
 	r.HandleFunc("/owner/backlog", ownerBacklogHandler)
 	r.HandleFunc("/owner/add-feature", ownerAddHandler)
 	r.HandleFunc("/owner/remove-feature", ownerRemHandler)
 
-	r.HandleFunc("/master", masterHandler)
+	//r.HandleFunc("/master", masterHandler)
 	r.HandleFunc("/master/prod-backlog", masterProdBacklogHandler)
 	r.HandleFunc("/master/sprint-backlog", masterSprintBacklogHandler)
 	r.HandleFunc("/master/add-feature", masterAddFeatureHandler)
 	r.HandleFunc("/master/remove-feature", masterRemoveFeatureHandler)
 	r.HandleFunc("/master/manage-developers", masterManageDevHandler)
 	
-	r.HandleFunc("/dev", devHandler)
+	//r.HandleFunc("/dev", devHandler)
 	r.HandleFunc("/dev/sprint-backlog", devSprintBacklogHandler)
 	r.HandleFunc("/dev/in-progress", devProgressHandler)
 	r.HandleFunc("/dev/manage-task", devManageHandler)
