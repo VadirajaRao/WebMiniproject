@@ -170,3 +170,23 @@ func DroppingProdLog(pid int, issue string) (error) {
 
 	return nil
 }
+
+// Function to add an entry into sprint backlog
+func AddingToSprintLog(sid int, pid int, issue string, status string, uid int) (error) {
+	db, err := setup()
+	if err != nil {
+		return err
+	}
+
+	query := `
+    INSERT INTO sprint_backlog(sid, pid, issue, status, uid)
+    VALUES (?, ?, ?, ?, ?)
+  `
+
+	_, err = db.Exec(query, sid, pid, issue, status, uid)
+	if err != nil {
+		return errors.Wrap(err, "unable to insert into sprint_cycle")
+	}
+
+	return nil
+}

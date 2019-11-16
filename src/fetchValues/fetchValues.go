@@ -210,7 +210,7 @@ func FetchPID(uid int) (int, error) {
 
 	err = db.QueryRow(query, uid).Scan(&pid)
 	if err != nil {
-		return -1, err
+		return -1, errors.Wrap(err, "failing to fetch PID")
 	}
 
 	return pid, nil
@@ -250,6 +250,44 @@ func FetchingProdLog(pid int) ([]Backlog, error) {
 	}
 
 	return backlog, nil
+}
+
+// Function to retrieve the PID based on the master UID
+func FetchPIDLeader(uid int) (int, error) {
+	var pid int
+	
+	db, err := setup()
+	if err != nil {
+		return -1, err
+	}
+
+	query := "SELECT pid FROM product WHERE luid = ?"
+
+	err = db.QueryRow(query, uid).Scan(&pid)
+	if err != nil {
+		return -1, errors.Wrap(err, "failing to fetch PID")
+	}
+
+	return pid, nil
+}
+
+// Fetching SID given PID from the SPRINT_CYCLE table
+func FetchingSID(pid int) (int, error) {
+	var sid int
+	
+	db, err := setup()
+	if err != nil {
+		return -1, err
+	}
+
+	query := "SELECT sid FROM sprint_cycle WHERE pid = ?"
+
+	err = db.QueryRow(query, pid).Scan(&sid)
+	if err != nil {
+		return -1, errors.Wrap(err, "failing to fetch sid")
+	}
+
+	return sid, nil
 }
 
 // Just a temp function

@@ -166,6 +166,8 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		Mail: r.FormValue("mail"),
 	}
 
+	/*
+  // This feature should be worked on. Something is not write.
 	val, err := fetchValues.CheckMailInUser(signupCred.Mail)
 	if err != nil {
 		log.Fatal(err)
@@ -179,9 +181,9 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		
 		t.Execute(w, x)
 		return
-	}
+	}*/
 
-	err = writeValues.CreateUser(&signupCred)
+	err := writeValues.CreateUser(&signupCred)
 
 	if err != nil {
 		t.Execute(w, nil)
@@ -271,184 +273,6 @@ func newProductHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t = template.Must(template.ParseFiles("./templates/done.html"))
-	t.Execute(w, nil)
-}
-
-// Function to handle owner product backlog page
-func ownerBacklogHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/owner_backlog.html"))
-	/*
-  t.Execute(w, nil)
-
-	if r.Method != http.MethoPost {
-		t.Execute(w, nil)
-		return
-	}
-  */
-
-	session, err := store.Get(r, "session-name-1")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Fetching PID of the product
-	pid, err := fetchValues.FetchPID(session.Values["user"].(int))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Fetching the product backlog
-	// Take care when the product has no logs initially.
-	// Maybe redirect to add feature page directly in case there is no entry.
-	backlog, err := fetchValues.FetchingProdLog(pid)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, log := range backlog {
-		fmt.Println(log.Feature)
-	}
-
-	t.Execute(w, backlog)
-}
-
-// Function to handle owner adding feature page
-func ownerAddHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/owner_add.html"))
-
-	if r.Method != http.MethodPost {
-		t.Execute(w, nil)
-		return
-	}
-
-	session, err := store.Get(r, "session-name-1")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Fetching the PID of the product.
-	pid, err := fetchValues.FetchPID(session.Values["user"].(int))
-	// Unable to find the product corresponding to the user. Handle the error.
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Taking the feature submitted by the user.
-	// In case the priority level has to be added create a structure for this.
-	issue := r.FormValue("feature")
-
-	// Adding the feature into the database.
-	// Create an error handler saying unable to add feature.
-	err = writeValues.ProdLogEntry(pid, issue)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	http.Redirect(w, r, "/owner/backlog", http.StatusFound)
-}
-
-// Function to handle owner remove feature page
-func ownerRemHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/owner_remove.html"))
-
-	if r.Method != http.MethodPost {
-		t.Execute(w, nil)
-		return
-	}
-
-	session, err := store.Get(r, "session-name-1")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Fetching PID of the owner
-	pid, err := fetchValues.FetchPID(session.Values["user"].(int))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Taking the feature to be deleted
-	issue := r.FormValue("feature")
-
-	// Deleting the feature from the backlog
-	// Create a modification package
-	err = writeValues.DroppingProdLog(pid, issue)
-	if err != nil {
-		log.Fatal(err) // unable to find the record
-	}
-
-	http.Redirect(w, r, "/owner/backlog", http.StatusFound)
-}
-
-/*
-// Function to hande leader page
-func masterHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/leader.html"))
-	t.Execute(w, nil)
-}
-*/
-
-// Function to handle leader product backlog page
-func masterProdBacklogHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/leader_prod_backlog.html"))
-	t.Execute(w, nil)
-}
-
-// Function to handle leader sprint backlog page
-func masterSprintBacklogHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(
-		template.ParseFiles("./templates/leader_sprint_backlog.html"),
-	)
-	t.Execute(w, nil)
-}
-
-// Function to handle leader add feature page
-func masterAddFeatureHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/leader_add_feature.html"))
-	t.Execute(w, nil)
-}
-
-// Function to handle leader remove feature rpage
-func masterRemoveFeatureHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/leader_rem_feature.html"))
-	t.Execute(w, nil)
-}
-
-// Function to handle leader manage developer page
-func masterManageDevHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/leader_manage.html"))
-	t.Execute(w, nil)
-}
-
-/*
-// Function to handle dev page
-func devHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/dev.html"))
-	t.Execute(w, nil)
-}
-*/
-
-// Function to handle dev sprint backlog page
-func devSprintBacklogHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/dev_sprint_backlog.html"))
-	t.Execute(w, nil)
-}
-
-// Function to handle dev progress handler
-func devProgressHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/dev_progress.html"))
-	t.Execute(w, nil)
-}
-
-// Function to handle dev manage task handler
-func devManageHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/dev_manage.html"))
-	t.Execute(w, nil)
-}
-
-// Function to handle dev completed handler
-func devCompletedHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/dev_completed.html"))
 	t.Execute(w, nil)
 }
 
