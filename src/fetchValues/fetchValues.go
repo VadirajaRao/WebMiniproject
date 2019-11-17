@@ -16,7 +16,7 @@ type LogIn struct {
 }
 
 type Backlog struct {
-	Feature string
+	Feature []string
 }
 
 // extractCredentials extracts the login credentials from the JSON file.
@@ -217,36 +217,36 @@ func FetchPID(uid int) (int, error) {
 }
 
 // Function to retrieve the product backlog based on PID
-func FetchingProdLog(pid int) ([]Backlog, error) {
+func FetchingProdLog(pid int) (Backlog, error) {
 	db, err := setup()
 	if err != nil {
-		return nil, err
+		return Backlog{}, err
 	}
 
 	query := "SELECT issue FROM product_backlog WHERE pid = ?"
 
 	rows, err := db.Query(query, pid)
 	if err != nil {
-		return nil, err
+		return Backlog{}, err
 	}
 	defer rows.Close()
 
-	var backlog []Backlog
+	var backlog Backlog
 
 	for rows.Next() {
-		var log Backlog
+		var log string
 
-		err := rows.Scan(&log.Feature)
+		err := rows.Scan(&log)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to process a row")
+			return Backlog{}, errors.Wrap(err, "failed to process a row")
 		}
 
-		backlog = append(backlog, log)
+		backlog.Feature = append(backlog.Feature, log)
 	}
 
 	err = rows.Err()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed after processing rows")
+		return Backlog{}, errors.Wrap(err, "failed after processing rows")
 	}
 
 	return backlog, nil

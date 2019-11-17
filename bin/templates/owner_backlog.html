@@ -3,9 +3,10 @@
 	<head>
 		<title>Owner | Product backlog</title>
 		<link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css">
-		<link rel="stylesheet" type="text/css" href="../static/css/owner_style.css">
+		<link rel="stylesheet" type="text/css" href="../static/css/login_style.css">
+		<link rel="stylesheet" type="text/css" href="../static/css/backlog_style.css">
 	</head>
-	<body>
+	<body class="background-container">
 		<nav class="navbar navbar-expand-sm bg-primary navbar-dark fixed-top">
 			<a href="/" class="navbar-brand font-weight-bold">
 				ScrumIt
@@ -32,11 +33,15 @@
 					</a>
 				</li>
 		</nav>
-		<div style="margin-top: 10%">
-			<table>
-				<th>Features in pipeline</th>
-				{{range .backlog}}
-				  <td>{{.}}</td>
+		<div class="tbl-position">
+			<table class="table table-background">
+				<tr class="tbl-border">
+					<th class="tbl-border">Features in pipeline</th>
+				</tr>
+				{{range .Feature}}
+				  <tr>
+						<td class="tbl-border">{{.}}</td>
+					</tr>
 				{{end}}
 			</table>
 		</div>

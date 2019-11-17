@@ -5,7 +5,7 @@
 package main
 
 import (
-	"fmt"
+	//"fmt"
 	"log"
 	"net/http"
 	"html/template"
@@ -44,10 +44,6 @@ func ownerBacklogHandler(w http.ResponseWriter, r *http.Request) {
 	backlog, err := fetchValues.FetchingProdLog(pid)
 	if err != nil {
 		log.Fatal(err)
-	}
-
-	for _, log := range backlog {
-		fmt.Println(log.Feature)
 	}
 
 	t.Execute(w, backlog)
