@@ -18,15 +18,8 @@ import (
 // Function to handle owner product backlog page
 func ownerBacklogHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/owner_backlog.html"))
-	/*
-  t.Execute(w, nil)
 
-	if r.Method != http.MethoPost {
-		t.Execute(w, nil)
-		return
-	}
-  */
-
+	// Extracting session information
 	session, err := store.Get(r, "session-name-1")
 	if err != nil {
 		log.Fatal(err)

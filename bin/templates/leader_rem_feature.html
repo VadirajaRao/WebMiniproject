@@ -3,9 +3,9 @@
 	<head>
 		<title>Leader | Remove feature</title>
 		<link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css">
-		<link rel="stylesheet" type="text/css" href="../static/css/leader_style.css">
+		<link rel="stylesheet" type="text/css" href="../static/css/login_style.css">
 	</head>
-	<body>
+	<body class="background-container">
 		<nav class="navbar navbar-expand-sm bg-primary navbar-dark fixed-top">
 			<a href="/" class="navbar-brand font-weight-bold">
 				ScrumIt
@@ -42,6 +42,23 @@
 					</a>
 				</li>
 		</nav>
-		<h1 style="margin-top: 5%">This is leader remove feature page</h1>
+		<div class="form-container">
+			<div>
+				<h1>Remove Feature</h1>
+			</div>
+			<div>
+				<form action="/master/remove-feature" method="POST">
+					<div class="form-group element">
+						<label for="feature">Feature</label>
+						<input type="textbox" name="feature" id="feature" placeholder="Entry from sprint backlog" required>
+					</div>
+					<div class="form-group element">
+						<button type="submit" class="btn btn-primary btn-lg">
+							Remove from sprint
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
 	</body>
 </html>

@@ -290,6 +290,42 @@ func FetchingSID(pid int) (int, error) {
 	return sid, nil
 }
 
+// Function to fetch sprint backlog based on PID and SID
+func FetchingSprintLog(sid int, pid int) (Backlog, error) {
+	db, err := setup()
+	if err != nil {
+		return Backlog{}, err
+	}
+
+	query := "SELECT issue FROM sprint_backlog WHERE sid = ? AND pid = ?"
+
+	rows, err := db.Query(query, sid, pid)
+	if err != nil {
+		return Backlog{}, err
+	}
+	defer rows.Close()
+
+	var backlog Backlog
+
+	for rows.Next() {
+		var log string
+
+		err := rows.Scan(&log)
+		if err != nil {
+			return Backlog{}, errors.Wrap(err, "failed to process a row")
+		}
+
+		backlog.Feature = append(backlog.Feature, log)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return Backlog{}, errors.Wrap(err, "failed after processing rows")
+	}
+
+	return backlog, nil
+}
+
 // Just a temp function
 func CheckEmpty(uid int) error {
 	db, err := setup()

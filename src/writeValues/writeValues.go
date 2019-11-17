@@ -190,3 +190,20 @@ func AddingToSprintLog(sid int, pid int, issue string, status string, uid int) (
 
 	return nil
 }
+
+// Function to remove a log entry from the sprint_backlog table
+func DroppingSprintLog(sid int, pid int, issue string) (error) {
+	db, err := setup()
+	if err != nil {
+		return err
+	}
+
+	query := "DELETE FROM sprint_backlog WHERE sid = ? AND pid = ? AND issue = ?"
+
+	_, err = db.Exec(query, sid, pid, issue)
+	if err != nil {
+		return errors.Wrap(err, "failed to find the error")
+	}
+
+	return nil
+}
