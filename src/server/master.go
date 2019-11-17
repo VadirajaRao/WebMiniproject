@@ -156,5 +156,38 @@ func masterRemoveFeatureHandler(w http.ResponseWriter, r *http.Request) {
 // Function to handle leader manage developer page
 func masterManageDevHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/leader_manage.html"))
+
+	if r.Method != http.MethodPost {
+		t.Execute(w, nil)
+		return
+	}
+
+	// Extracting session information
+	session, err := store.Get(r, "session-name-1")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fetching PID based on master UID
+	pid, err := fetchValues.FetchPIDLeader(session.Values["user"].(int))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Reading dev mail id input
+	mail := r.FormValue("mail")
+
+	// Extracting UID of the developer
+	uid, err := fetchValues.FetchUID(mail)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Adding developer
+	err = writeValues.AddingDev(pid, uid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	t.Execute(w, nil)
 }

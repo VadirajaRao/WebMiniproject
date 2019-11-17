@@ -207,3 +207,20 @@ func DroppingSprintLog(sid int, pid int, issue string) (error) {
 
 	return nil
 }
+
+// Function to add a developer to the `developer` table
+func AddingDev(pid int, uid int) (error) {
+	db, err := setup()
+	if err != nil {
+		return err
+	}
+
+	query := "INSERT INTO developer (pid, uid) VALUES (?, ?)"
+
+	_, err = db.Exec(query, pid, uid)
+	if err != nil {
+		return errors.Wrap(err, "unable to add developer")
+	}
+
+	return nil
+}
