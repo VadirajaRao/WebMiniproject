@@ -5,7 +5,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"html/template"
@@ -76,12 +75,7 @@ func devProgressHandler(w http.ResponseWriter, r *http.Request) {
 	backlog, err := fetchValues.DevInProgressLog(sid, pid)
 	if err != nil {
 		if backlog.Msg == "No issue in-progress" {
-			fmt.Println("It is not working")
-			x := ErrMsg {
-				Flag: true,
-				Msg: "No issue in progress",
-			}
-			t.Execute(w, x)
+			t.Execute(w, nil)
 			return
 		}
 
@@ -100,5 +94,34 @@ func devManageHandler(w http.ResponseWriter, r *http.Request) {
 // Function to handle dev completed handler
 func devCompletedHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/dev_completed.html"))
-	t.Execute(w, nil)
+
+	// Extracting session information
+	session, err := store.Get(r, "session-name-1")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fetching the pid of the dev
+	pid, err := fetchValues.FetchPIDDev(session.Values["user"].(int))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fetching the sid of the PID
+	sid, err := fetchValues.FetchingSID(pid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	backlog, err := fetchValues.DevCompletedLog(sid, pid)
+	if err != nil {
+		if backlog.Msg == "No issue complete" {
+			t.Execute(w, nil)
+			return
+		}
+
+		log.Fatal(err)
+	}
+
+	t.Execute(w, backlog)
 }

@@ -419,6 +419,64 @@ func DevInProgressLog(sid int, pid int) (ProgressLog, error) {
 	return progressLog, nil
 }
 
+// Function to fetch values from sprint-backlog table with COMPLETE status
+func DevCompletedLog(sid int, pid int) (ProgressLog, error) {
+	db, err := setup()
+	if err != nil {
+		return ProgressLog{}, err
+	}
+
+	query := `
+		SELECT issue, uid
+    FROM sprint_backlog
+    WHERE sid = ? AND pid = ? AND status="COMPLETED"
+  `
+
+	rows, err := db.Query(query, sid, pid)
+	if err != nil {
+		return ProgressLog{}, err
+	}
+	defer rows.Close()
+
+	var progressLog ProgressLog
+
+	if rows.Next() {
+		var pLog SingleLog
+
+		err := rows.Scan(&pLog.Feature, &pLog.UID)
+		if err != nil {
+			return ProgressLog{}, errors.Wrap(err, "failed to process a row")
+		}
+
+		progressLog.Logs = append(progressLog.Logs, pLog)
+	} else {
+		var pLog ProgressLog
+
+		pLog.Msg = "No issue complete"
+
+		return pLog, err
+	}
+
+	for rows.Next() {
+		var pLog SingleLog
+
+		err := rows.Scan(&pLog.Feature, &pLog.UID)
+		if err != nil {
+			return ProgressLog{}, errors.Wrap(err, "failed to process a row")
+		}
+
+		progressLog.Logs = append(progressLog.Logs, pLog)
+	}
+	
+	err = rows.Err()
+	if err != nil {
+		return ProgressLog{}, errors.Wrap(err, "failed after processing rows")
+	}
+
+	progressLog.Msg = ""
+	return progressLog, nil
+}
+
 // Just a temp function
 func CheckEmpty(uid int) error {
 	db, err := setup()
