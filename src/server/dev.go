@@ -5,28 +5,90 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 	"html/template"
+
+	"fetchValues"
+	//"writeValues"
 )
 
-/*
-// Function to handle dev page
-func devHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("./templates/dev.html"))
-	t.Execute(w, nil)
+type ErrMsg struct {
+	Flag bool
+	Msg  string
 }
-*/
 
 // Function to handle dev sprint backlog page
 func devSprintBacklogHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/dev_sprint_backlog.html"))
-	t.Execute(w, nil)
+
+	// Extracting session information
+	session, err := store.Get(r, "session-name-1")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fetching the pid of the dev
+	pid, err := fetchValues.FetchPIDDev(session.Values["user"].(int))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fetching the sid of the PID
+	sid, err := fetchValues.FetchingSID(pid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fetching the sprint backlog
+	backlog, err := fetchValues.FetchingSprintLog(sid, pid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	t.Execute(w, backlog)
 }
 
 // Function to handle dev progress handler
 func devProgressHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/dev_progress.html"))
-	t.Execute(w, nil)
+	
+	// Extracting session information
+	session, err := store.Get(r, "session-name-1")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fetching the pid of the dev
+	pid, err := fetchValues.FetchPIDDev(session.Values["user"].(int))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fetching the sid of the PID
+	sid, err := fetchValues.FetchingSID(pid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fetching the in progress issues
+	backlog, err := fetchValues.DevInProgressLog(sid, pid)
+	if err != nil {
+		if backlog.Msg == "No issue in-progress" {
+			fmt.Println("It is not working")
+			x := ErrMsg {
+				Flag: true,
+				Msg: "No issue in progress",
+			}
+			t.Execute(w, x)
+			return
+		}
+
+		log.Fatal(err)
+	}
+
+	t.Execute(w, backlog)
 }
 
 // Function to handle dev manage task handler
