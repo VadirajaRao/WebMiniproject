@@ -89,11 +89,6 @@ func devProgressHandler(w http.ResponseWriter, r *http.Request) {
 func devManageHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/dev_manage.html"))
 
-	if r.Method != http.MethodPost {
-		t.Execute(w, nil)
-		return
-	}
-
 	// Extracting session information
 	session, err := store.Get(r, "session-name-1")
 	if err != nil {
@@ -106,6 +101,17 @@ func devManageHandler(w http.ResponseWriter, r *http.Request) {
 	pid, err := fetchValues.FetchPIDDev(uid) // Maybe the point of failure
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	// Extracting Product name based on PID
+	Pname, err := fetchValues.ExtractingProdName(pid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if r.Method != http.MethodPost {
+		t.Execute(w, Pname)
+		return
 	}
 
 	// Fetching the sid of the PID

@@ -16,6 +16,7 @@ type LogIn struct {
 }
 
 type Backlog struct {
+	ProdName string
 	Feature []string
 }
 
@@ -30,13 +31,15 @@ type SingleLog struct {
 }
 
 type ProgressLog struct {
-	Msg  string
-	Logs []SingleLog
+	Msg      string
+	ProdName string
+	Logs     []SingleLog
 }
 
 type DevList struct {
-	Msg string
-	Dev []string
+	Msg      string
+	ProdName string
+	Dev      []string
 }
 
 // extractCredentials extracts the login credentials from the JSON file.
@@ -90,6 +93,25 @@ func setup() (*sql.DB, error) {
 	}
 
 	return db, nil
+}
+
+// Function to extract product name based on pid
+func ExtractingProdName(pid int) (string, error) {
+	db, err := setup()
+	if err != nil {
+		return "", err
+	}
+
+	query := "SELECT pname FROM product WHERE pid = ?"
+
+	var pname string
+
+	err = db.QueryRow(query, pid).Scan(&pname)
+	if err != nil {
+		return "", errors.Wrap(err, "unable to extract product name")
+	}
+
+	return pname, nil
 }
 
 // Function to check if the mail id is valid and then returns the password
@@ -269,6 +291,11 @@ func FetchingProdLog(pid int) (Backlog, error) {
 		return Backlog{}, errors.Wrap(err, "failed after processing rows")
 	}
 
+	backlog.ProdName, err = ExtractingProdName(pid)
+	if err != nil {
+		return Backlog{}, err
+	}
+
 	return backlog, nil
 }
 
@@ -343,6 +370,12 @@ func FetchingSprintLog(sid int, pid int) (Backlog, error) {
 		return Backlog{}, errors.Wrap(err, "failed after processing rows")
 	}
 
+	// Extracting product name based on PID
+	backlog.ProdName, err = ExtractingProdName(pid)
+	if err != nil {
+		return Backlog{}, err
+	}
+
 	return backlog, nil
 }
 
@@ -404,6 +437,12 @@ func DevInProgressLog(sid int, pid int) (ProgressLog, error) {
 
 	var progressLog ProgressLog
 
+	// Extracting product name based on PID
+	progressLog.ProdName, err = ExtractingProdName(pid)
+	if err != nil {
+		return ProgressLog{}, err
+	}
+
 	if rows.Next() {
 		var pLog SingleLog
 		var uid int
@@ -421,6 +460,12 @@ func DevInProgressLog(sid int, pid int) (ProgressLog, error) {
 		progressLog.Logs = append(progressLog.Logs, pLog)
 	} else {
 		var pLog ProgressLog
+
+		// Extracting product name based on PID
+		pLog.ProdName, err = ExtractingProdName(pid)
+		if err != nil {
+			return ProgressLog{}, err
+		}
 
 		pLog.Msg = "No issue in-progress"
 
@@ -474,6 +519,12 @@ func DevCompletedLog(sid int, pid int) (ProgressLog, error) {
 
 	var progressLog ProgressLog
 
+	// Extracting product name based on PID
+	progressLog.ProdName, err = ExtractingProdName(pid)
+	if err != nil {
+		return ProgressLog{}, err
+	}
+
 	if rows.Next() {
 		var pLog SingleLog
 		var uid int
@@ -491,6 +542,12 @@ func DevCompletedLog(sid int, pid int) (ProgressLog, error) {
 		progressLog.Logs = append(progressLog.Logs, pLog)
 	} else {
 		var pLog ProgressLog
+
+		// Extracting product name based on PID
+		pLog.ProdName, err = ExtractingProdName(pid)
+		if err != nil {
+			return ProgressLog{}, err
+		}
 
 		pLog.Msg = "No issue complete"
 
@@ -539,6 +596,12 @@ func ExtractingDevs(pid int) (DevList, error) {
 	defer rows.Close()
 
 	var dList DevList
+
+	// Extracting product name based on PID
+	dList.ProdName, err = ExtractingProdName(pid)
+	if err != nil {
+		return DevList{}, err
+	}
 
 	if rows.Next() {
 		var uid int

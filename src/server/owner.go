@@ -45,12 +45,7 @@ func ownerBacklogHandler(w http.ResponseWriter, r *http.Request) {
 // Function to handle owner adding feature page
 func ownerAddHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/owner_add.html"))
-
-	if r.Method != http.MethodPost {
-		t.Execute(w, nil)
-		return
-	}
-
+	
 	session, err := store.Get(r, "session-name-1")
 	if err != nil {
 		log.Fatal(err)
@@ -61,6 +56,16 @@ func ownerAddHandler(w http.ResponseWriter, r *http.Request) {
 	// Unable to find the product corresponding to the user. Handle the error.
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	Pname, err := fetchValues.ExtractingProdName(pid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if r.Method != http.MethodPost {
+		t.Execute(w, Pname)
+		return
 	}
 
 	// Taking the feature submitted by the user.
@@ -81,11 +86,6 @@ func ownerAddHandler(w http.ResponseWriter, r *http.Request) {
 func ownerRemHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/owner_remove.html"))
 
-	if r.Method != http.MethodPost {
-		t.Execute(w, nil)
-		return
-	}
-
 	session, err := store.Get(r, "session-name-1")
 	if err != nil {
 		log.Fatal(err)
@@ -95,6 +95,16 @@ func ownerRemHandler(w http.ResponseWriter, r *http.Request) {
 	pid, err := fetchValues.FetchPID(session.Values["user"].(int))
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	Pname, err := fetchValues.ExtractingProdName(pid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if r.Method != http.MethodPost {
+		t.Execute(w, Pname)
+		return
 	}
 
 	// Taking the feature to be deleted

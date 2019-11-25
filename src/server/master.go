@@ -5,7 +5,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"html/template"
@@ -79,12 +78,6 @@ func masterSprintBacklogHandler(w http.ResponseWriter, r *http.Request) {
 // Function to handle leader add feature page
 func masterAddFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/leader_add_feature.html"))
-	//t.Execute(w, nil)
-
-	if r.Method != http.MethodPost {
-		t.Execute(w, nil)
-		return
-	}
 
 	session, err := store.Get(r, "session-name-1")
 	if err != nil {
@@ -95,6 +88,16 @@ func masterAddFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	pid, err := fetchValues.FetchPIDLeader(session.Values["user"].(int))
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	Pname, err := fetchValues.ExtractingProdName(pid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if r.Method != http.MethodPost {
+		t.Execute(w, Pname)
+		return
 	}
 
 	// Fetching active SID of the PID
@@ -121,11 +124,6 @@ func masterAddFeatureHandler(w http.ResponseWriter, r *http.Request) {
 func masterRemoveFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/leader_rem_feature.html"))
 
-	if r.Method != http.MethodPost {
-		t.Execute(w, nil)
-		return
-	}
-
 	// Extracting session information
 	session, err := store.Get(r, "session-name-1")
 	if err != nil {
@@ -136,6 +134,16 @@ func masterRemoveFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	pid, err := fetchValues.FetchPIDLeader(session.Values["user"].(int))
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	Pname, err := fetchValues.ExtractingProdName(pid)
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+	if r.Method != http.MethodPost {
+		t.Execute(w, Pname)
+		return
 	}
 
 	// Fetching SID based on PID
