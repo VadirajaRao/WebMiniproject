@@ -5,6 +5,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"html/template"
@@ -12,6 +13,8 @@ import (
 	"writeValues"
 	"fetchValues"
 )
+
+var dummyUID int = 1
 
 // Function to handle leader product backlog page
 func masterProdBacklogHandler(w http.ResponseWriter, r *http.Request) {
@@ -105,7 +108,7 @@ func masterAddFeatureHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Inserting the issue into the sprint backlog
 	// The UID that is used here is a dummy user. Should fix the schema.
-	err = writeValues.AddingToSprintLog(sid, pid, issue, "AVAILABLE", 20)
+	err = writeValues.AddingToSprintLog(sid, pid, issue, "AVAILABLE", dummyUID)
 	if err != nil {
 		log.Fatal(err) // Unable to add the entry into sprint backlog error.
 	}
@@ -157,11 +160,6 @@ func masterRemoveFeatureHandler(w http.ResponseWriter, r *http.Request) {
 func masterManageDevHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/leader_manage.html"))
 
-	if r.Method != http.MethodPost {
-		t.Execute(w, nil)
-		return
-	}
-
 	// Extracting session information
 	session, err := store.Get(r, "session-name-1")
 	if err != nil {
@@ -172,6 +170,17 @@ func masterManageDevHandler(w http.ResponseWriter, r *http.Request) {
 	pid, err := fetchValues.FetchPIDLeader(session.Values["user"].(int))
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	// Assigned developer list
+	developerList, err := fetchValues.ExtractingDevs(pid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if r.Method != http.MethodPost {
+		t.Execute(w, developerList)
+		return
 	}
 
 	// Reading dev mail id input
@@ -188,6 +197,6 @@ func masterManageDevHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	t.Execute(w, nil)
+	
+	t.Execute(w, developerList)
 }

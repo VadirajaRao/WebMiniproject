@@ -12,3 +12,11 @@
 		margin-left: 5%;
 		margin-right: 5%;
 }
+
+th {
+		font-size: 18pt;
+}
+
+table, td {
+		font-size: 14pt;
+}

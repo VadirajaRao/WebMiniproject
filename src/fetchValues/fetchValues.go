@@ -1,7 +1,6 @@
 package fetchValues
 
 import (
-	"fmt"
 	"database/sql"
 	"encoding/json"
 	"io/ioutil"
@@ -33,6 +32,11 @@ type SingleLog struct {
 type ProgressLog struct {
 	Msg  string
 	Logs []SingleLog
+}
+
+type DevList struct {
+	Msg string
+	Dev []string
 }
 
 // extractCredentials extracts the login credentials from the JSON file.
@@ -414,8 +418,6 @@ func DevInProgressLog(sid int, pid int) (ProgressLog, error) {
 			return ProgressLog{}, err
 		}
 
-		fmt.Println(pLog.Uname)
-
 		progressLog.Logs = append(progressLog.Logs, pLog)
 	} else {
 		var pLog ProgressLog
@@ -519,6 +521,71 @@ func DevCompletedLog(sid int, pid int) (ProgressLog, error) {
 
 	progressLog.Msg = ""
 	return progressLog, nil
+}
+
+// Function to extract developers
+func ExtractingDevs(pid int) (DevList, error) {
+	db, err := setup()
+	if err != nil {
+		return DevList{}, err
+	}
+
+	query := "SELECT uid FROM developer WHERE pid = ?"
+
+	rows, err := db.Query(query, pid)
+	if err != nil {
+		return DevList{}, err
+	}
+	defer rows.Close()
+
+	var dList DevList
+
+	if rows.Next() {
+		var uid int
+		var uname string
+
+		err := rows.Scan(&uid)
+		if err != nil {
+			return DevList{}, errors.Wrap(err, "failed to process a row")
+		}
+
+		uname, err = extractingUsername(uid)
+		if err != nil {
+			return DevList{}, err
+		}
+
+		dList.Dev = append(dList.Dev, uname)
+	} else {
+		dList.Msg = "No issue complete"
+
+		return dList, err
+	}
+
+	// From here
+	for rows.Next() {
+		var uid int
+		var uname string
+
+		err := rows.Scan(&uid)
+		if err != nil {
+			return DevList{}, errors.Wrap(err, "failed to process a row")
+		}
+
+		uname, err = extractingUsername(uid)
+		if err != nil {
+			return DevList{}, err
+		}
+
+		dList.Dev = append(dList.Dev, uname)
+	}
+	
+	err = rows.Err()
+	if err != nil {
+		return DevList{}, errors.Wrap(err, "failed after processing rows")
+	}
+
+	dList.Msg = ""
+	return dList, nil
 }
 
 // Just a temp function
