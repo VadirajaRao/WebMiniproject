@@ -118,6 +118,7 @@ func devManageHandler(w http.ResponseWriter, r *http.Request) {
 	issue := r.FormValue("feature")
 	action := r.FormValue("action")
 
+	// Updatin sprint_backlog
 	if action == "progress" {
 		err = writeValues.UpdatingInprogress(sid, pid, issue, "INPROGRESS", uid)
 		if err != nil {

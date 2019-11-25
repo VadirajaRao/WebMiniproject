@@ -1,7 +1,7 @@
 package fetchValues
 
 import (
-	//"fmt"
+	"fmt"
 	"database/sql"
 	"encoding/json"
 	"io/ioutil"
@@ -27,7 +27,7 @@ type ProductLog struct {
 
 type SingleLog struct {
 	Feature string
-	UID     int
+	Uname   string
 }
 
 type ProgressLog struct {
@@ -361,6 +361,24 @@ func FetchPIDDev(uid int) (int, error) {
 	return pid, nil
 }
 
+// Function to extract username based on UID
+func extractingUsername(uid int) (string, error) {
+	db, err := setup()
+	if err != nil {
+		return "", err
+	}
+
+	var uname string
+	query := "SELECT name FROM user WHERE uid = ?"
+
+	err = db.QueryRow(query, uid).Scan(&uname)
+	if err != nil {
+		return "", errors.Wrap(err, "unable to extract user name")
+	}
+
+	return uname, nil
+}
+
 // Function to fetch the features in progress
 func DevInProgressLog(sid int, pid int) (ProgressLog, error) {
 	db, err := setup()
@@ -384,11 +402,19 @@ func DevInProgressLog(sid int, pid int) (ProgressLog, error) {
 
 	if rows.Next() {
 		var pLog SingleLog
+		var uid int
 
-		err := rows.Scan(&pLog.Feature, &pLog.UID)
+		err := rows.Scan(&pLog.Feature, &uid)
 		if err != nil {
 			return ProgressLog{}, errors.Wrap(err, "failed to process a row")
 		}
+
+		pLog.Uname, err = extractingUsername(uid)
+		if err != nil {
+			return ProgressLog{}, err
+		}
+
+		fmt.Println(pLog.Uname)
 
 		progressLog.Logs = append(progressLog.Logs, pLog)
 	} else {
@@ -401,10 +427,16 @@ func DevInProgressLog(sid int, pid int) (ProgressLog, error) {
 
 	for rows.Next() {
 		var pLog SingleLog
+		var uid int
 
-		err := rows.Scan(&pLog.Feature, &pLog.UID)
+		err := rows.Scan(&pLog.Feature, &uid)
 		if err != nil {
 			return ProgressLog{}, errors.Wrap(err, "failed to process a row")
+		}
+
+		pLog.Uname, err = extractingUsername(uid)
+		if err != nil {
+			return ProgressLog{}, err
 		}
 
 		progressLog.Logs = append(progressLog.Logs, pLog)
@@ -442,10 +474,16 @@ func DevCompletedLog(sid int, pid int) (ProgressLog, error) {
 
 	if rows.Next() {
 		var pLog SingleLog
+		var uid int
 
-		err := rows.Scan(&pLog.Feature, &pLog.UID)
+		err := rows.Scan(&pLog.Feature, &uid)
 		if err != nil {
 			return ProgressLog{}, errors.Wrap(err, "failed to process a row")
+		}
+
+		pLog.Uname, err = extractingUsername(uid)
+		if err != nil {
+			return ProgressLog{}, err
 		}
 
 		progressLog.Logs = append(progressLog.Logs, pLog)
@@ -459,10 +497,16 @@ func DevCompletedLog(sid int, pid int) (ProgressLog, error) {
 
 	for rows.Next() {
 		var pLog SingleLog
+		var uid int
 
-		err := rows.Scan(&pLog.Feature, &pLog.UID)
+		err := rows.Scan(&pLog.Feature, &uid)
 		if err != nil {
 			return ProgressLog{}, errors.Wrap(err, "failed to process a row")
+		}
+
+		pLog.Uname, err = extractingUsername(uid)
+		if err != nil {
+			return ProgressLog{}, err
 		}
 
 		progressLog.Logs = append(progressLog.Logs, pLog)
