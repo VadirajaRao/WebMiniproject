@@ -3,9 +3,9 @@
 	<head>
 		<title>Developer | Management</title>
 		<link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css">
-		<link rel="stylesheet" type="text/css" href="../static/css/owner_style.css">
+		<link rel="stylesheet" type="text/css" href="../static/css/login_style.css">
 	</head>
-	<body>
+	<body class="background-container">
 		<nav class="navbar navbar-expand-sm bg-primary navbar-dark fixed-top">
 			<a href="/" class="navbar-brand font-weight-bold">
 				ScrumIt
@@ -37,6 +37,37 @@
 					</a>
 				</li>
 		</nav>
-		<h1 style="margin-top: 5%">This is Developer management page</h1>
+		<div class="form-container">
+			<div>
+				<h1>Managing Tasks</h1>
+			</div>
+			<div>
+				<form action="/dev/manage-task" method="POST">
+					<div class="form-group element">
+						<label for="issue">Feature: </label>
+						<input type="text" name="feature" id="issue" placeholder="Eg: Error handling" required>
+					</div>
+					<div class="form-group element">
+						<label for="task">Action: </label>
+						<select name="action">
+							<option value="progress">Take-up</option>
+							<option value="complete">Mark complete</option>
+						</select>
+					</div>
+					<div class="form-group element">
+						<button type="submit" class="btn btn-primary btn-lg">
+							Take action
+						</button>
+					</div>
+				</form>
+				<div class="element err-msg">
+					<p>
+						<b>NOTE:</b>
+						The feature has to be <i><b>in-progress</b></i> to be marked complete
+						and it should not be <i><b>in-progress</b></i> but in
+						<i><b>sprint-backlog</b></i> in order to be taken up.
+					</p>
+			</div>
+		</div>
 	</body>
 </html>

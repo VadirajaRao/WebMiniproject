@@ -10,7 +10,7 @@ import (
 	"html/template"
 
 	"fetchValues"
-	//"writeValues"
+	"writeValues"
 )
 
 type ErrMsg struct {
@@ -88,7 +88,51 @@ func devProgressHandler(w http.ResponseWriter, r *http.Request) {
 // Function to handle dev manage task handler
 func devManageHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./templates/dev_manage.html"))
-	t.Execute(w, nil)
+
+	if r.Method != http.MethodPost {
+		t.Execute(w, nil)
+		return
+	}
+
+	// Extracting session information
+	session, err := store.Get(r, "session-name-1")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	uid := session.Values["user"].(int)
+
+	// Fetching the pid of the dev
+	pid, err := fetchValues.FetchPIDDev(uid) // Maybe the point of failure
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fetching the sid of the PID
+	sid, err := fetchValues.FetchingSID(pid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Reading form data
+	issue := r.FormValue("feature")
+	action := r.FormValue("action")
+
+	if action == "progress" {
+		err = writeValues.UpdatingInprogress(sid, pid, issue, "INPROGRESS", uid)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		http.Redirect(w, r, "/dev/in-progress", http.StatusFound)
+	} else {
+		err = writeValues.UpdatingCompleted(sid, pid, issue, "COMPLETED", uid)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		http.Redirect(w, r, "/dev/completed", http.StatusFound)
+	}
 }
 
 // Function to handle dev completed handler

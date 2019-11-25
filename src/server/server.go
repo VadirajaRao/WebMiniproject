@@ -189,8 +189,9 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		t.Execute(w, nil)
 	}
 
-	t = template.Must(template.ParseFiles("./templates/done.html"))
-	t.Execute(w, nil)
+	//t = template.Must(template.ParseFiles("./templates/done.html"))
+	//t.Execute(w, nil)
+	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
 // Function to retrieve UID of the owner of the product

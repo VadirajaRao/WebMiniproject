@@ -224,3 +224,45 @@ func AddingDev(pid int, uid int) (error) {
 
 	return nil
 }
+
+// Function to update an issue in sprint-backlog to `INPROGRESS`
+func UpdatingInprogress(sid int, pid int, issue string, status string, uid int) (error) {
+	db, err := setup()
+	if err != nil {
+		return err
+	}
+
+	query := `
+    UPDATE sprint_backlog
+    SET status = "INPROGRESS", uid = ?
+    WHERE sid = ? and pid = ? and issue = ?
+  `
+
+	_, err = db.Exec(query, uid, sid, pid, issue)
+	if err != nil {
+		return errors.Wrap(err, "unable to update sprint_backlog")
+	}
+
+	return nil
+}
+
+// Function to update sprint_backlog to mark an issue as `COMPLETED`
+func UpdatingCompleted(sid int, pid int, issue string, status string, uid int) (error) {
+	db, err := setup()
+	if err != nil {
+		return err
+	}
+
+	query := `
+    UPDATE sprint_backlog
+    SET status = "COMPLETED", uid = ?
+    WHERE sid = ? and pid = ? and issue = ?
+  `
+
+	_, err = db.Exec(query, uid, sid, pid, issue)
+	if err != nil {
+		return errors.Wrap(err, "unable to update sprint_backlog")
+	}
+
+	return nil
+}
