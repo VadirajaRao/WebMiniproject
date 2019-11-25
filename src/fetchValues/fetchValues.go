@@ -101,6 +101,7 @@ func ExtractingProdName(pid int) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer db.Close()
 
 	query := "SELECT pname FROM product WHERE pid = ?"
 
@@ -121,6 +122,7 @@ func LoginVerification(usermail string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer db.Close()
 
 	var (
 		uid int
@@ -149,6 +151,7 @@ func CheckMailInUser(usermail string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer db.Close()
 
 	var (
 		uid int
@@ -178,6 +181,7 @@ func FetchUID(usermail string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	defer db.Close()
 
 	var uid int
 
@@ -198,6 +202,7 @@ func CheckOwnerMailInProduct(usermail string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer db.Close()
 
 	uid, err := FetchUID(usermail)
 	if err != nil {
@@ -222,6 +227,7 @@ func CheckLeaderMailInProduct(usermail string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer db.Close()
 
 	uid, err := FetchUID(usermail)
 	if err != nil {
@@ -247,6 +253,7 @@ func FetchPID(uid int) (int, error) {
 	if err != nil {
 		return -1, err
 	}
+	defer db.Close()
 
 	query := "SELECT pid FROM product WHERE ouid = ?"
 
@@ -264,6 +271,7 @@ func FetchingProdLog(pid int) (Backlog, error) {
 	if err != nil {
 		return Backlog{}, err
 	}
+	defer db.Close()
 
 	query := "SELECT issue FROM product_backlog WHERE pid = ?"
 
@@ -307,6 +315,7 @@ func FetchPIDLeader(uid int) (int, error) {
 	if err != nil {
 		return -1, err
 	}
+	defer db.Close()
 
 	query := "SELECT pid FROM product WHERE luid = ?"
 
@@ -326,6 +335,7 @@ func FetchingSID(pid int) (int, error) {
 	if err != nil {
 		return -1, err
 	}
+	defer db.Close()
 
 	query := "SELECT sid FROM sprint_cycle WHERE pid = ?"
 
@@ -343,6 +353,7 @@ func FetchingSprintLog(sid int, pid int) (Backlog, error) {
 	if err != nil {
 		return Backlog{}, err
 	}
+	defer db.Close()
 
 	query := "SELECT issue FROM sprint_backlog WHERE sid = ? AND pid = ?"
 
@@ -387,6 +398,7 @@ func FetchPIDDev(uid int) (int, error) {
 	if err != nil {
 		return -1, err
 	}
+	defer db.Close()
 
 	query := "SELECT pid FROM developer WHERE uid = ?"
 
@@ -404,6 +416,7 @@ func extractingUsername(uid int) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer db.Close()
 
 	var uname string
 	query := "SELECT name FROM user WHERE uid = ?"
@@ -422,6 +435,7 @@ func DevInProgressLog(sid int, pid int) (ProgressLog, error) {
 	if err != nil {
 		return ProgressLog{}, err
 	}
+	defer db.Close()
 
 	query := `
 		SELECT issue, uid
@@ -504,6 +518,7 @@ func DevCompletedLog(sid int, pid int) (ProgressLog, error) {
 	if err != nil {
 		return ProgressLog{}, err
 	}
+	defer db.Close()
 
 	query := `
 		SELECT issue, uid
@@ -586,6 +601,7 @@ func ExtractingDevs(pid int) (DevList, error) {
 	if err != nil {
 		return DevList{}, err
 	}
+	defer db.Close()
 
 	query := "SELECT uid FROM developer WHERE pid = ?"
 
@@ -624,7 +640,6 @@ func ExtractingDevs(pid int) (DevList, error) {
 		return dList, err
 	}
 
-	// From here
 	for rows.Next() {
 		var uid int
 		var uname string
@@ -657,6 +672,7 @@ func CheckEmpty(uid int) error {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	query := "SELECT pid FROM developer WHERE uid = ?"
 

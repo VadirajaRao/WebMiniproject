@@ -74,6 +74,7 @@ func CheckIfOwner(uid int) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer db.Close()
 
 	var pid int
 
@@ -93,6 +94,7 @@ func CheckIfLeader(uid int) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer db.Close()
 
 	var pid int
 

@@ -92,6 +92,7 @@ func CreateUser(signupCred *Signup) error{
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	query := `
 		INSERT INTO user (fname, lname, name, mail, pwd) VALUES (?, ?, ?, ?, ?)
@@ -119,6 +120,7 @@ func CreateProduct(productCred *Product) error {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	query := "INSERT INTO product (pname, ouid, luid) VALUES (?, ?, ?)"
 
@@ -143,6 +145,7 @@ func ProdLogEntry(pid int, issue string) (error) {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	query := "INSERT INTO product_backlog (pid, issue) VALUES (?, ?)"
 
@@ -160,6 +163,7 @@ func DroppingProdLog(pid int, issue string) (error) {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	query := "DELETE FROM product_backlog WHERE pid = ? AND issue = ?"
 
@@ -177,6 +181,7 @@ func AddingToSprintLog(sid int, pid int, issue string, status string, uid int) (
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	query := `
     INSERT INTO sprint_backlog(sid, pid, issue, status, uid)
@@ -197,6 +202,7 @@ func DroppingSprintLog(sid int, pid int, issue string) (error) {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	query := "DELETE FROM sprint_backlog WHERE sid = ? AND pid = ? AND issue = ?"
 
@@ -214,6 +220,7 @@ func AddingDev(pid int, uid int) (error) {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	query := "INSERT INTO developer (pid, uid) VALUES (?, ?)"
 
@@ -231,6 +238,7 @@ func UpdatingInprogress(sid int, pid int, issue string, status string, uid int) 
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	query := `
     UPDATE sprint_backlog
@@ -252,6 +260,7 @@ func UpdatingCompleted(sid int, pid int, issue string, status string, uid int) (
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	query := `
     UPDATE sprint_backlog
