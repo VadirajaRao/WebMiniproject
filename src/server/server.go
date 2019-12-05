@@ -17,38 +17,52 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-// Session key initialization. (hide)
+// Session key initialization.
 var store = sessions.NewCookieStore([]byte("MT-15vsR15"))
 
 // Function to handle the main page.
 // This is where the application begins
 func indexPageHandler(w http.ResponseWriter, r *http.Request) {
+	// Fetching the session details for a particular session.
 	session, err := store.Get(r, "session-name-1")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	session.Values["user"] = -1
-	session.Values["authenticated"] = false
+	// Clearing the session by removing the user that was currently logged-in
+	session.Values["user"] = -1 // This holds the user uid
+	session.Values["authenticated"] = false // This tells if the session is active.
 
+	// Saving the updated session information.
 	err = session.Save(r, w)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Rendering the template for the `index.html` page.
 	t := template.Must(template.ParseFiles("./templates/index.html"))
 	t.Execute(w, nil)
 }
 
 // Function to handle the information page
 func informationPageHandler(w http.ResponseWriter, r *http.Request) {
+	// Rendering the template for the `info.html` page.
 	t := template.Must(template.ParseFiles("./templates/info.html"))
-
 	t.Execute(w, nil)
 }
 
-// Function to retrieve handle for redirection
+/* Function to retrieve handle for redirection
+ *
+ * This function checks the user that is trying to login and redirects them to
+ * appropriate landing page based on their role i.e., as a owner, scrum master or
+ * a developer.
+ *
+ * The function will first check if the UID is of a product owner and then for
+ * scrum master. If neither of them turn out to be true then it will redirect as
+ * developer by default.
+ */ 
 func retrievingHandle(uid int) (string, error) {
+	// `flag` is set if the UID of the user corresponds to a product owner.
 	flag, err := auth.CheckIfOwner(uid)
 	if err != nil {
 		log.Fatal(err)
@@ -58,6 +72,7 @@ func retrievingHandle(uid int) (string, error) {
 		return "/owner/backlog", nil
 	}
 
+	// `flag` is ser if the UID of the user corresponds to a scrum master.
 	flag, err = auth.CheckIfLeader(uid)
 	if err != nil {
 		log.Fatal(err)
@@ -70,17 +85,26 @@ func retrievingHandle(uid int) (string, error) {
 	return "/dev/sprint-backlog", nil
 }
 
-// Function to handle the login page
-// This function verifies the user who wants to login to his/her account.
-func loginHandler(w http.ResponseWriter, r *http.Request) {	
+/* Function to handle the login page
+ *
+ * This function verifies the user who wants to login to their account.
+ */
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	// Retrieving session information for the user
 	session, err := store.Get(r, "session-name-1")
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Preparing the tempplate for `login.html`
 	t := template.Must(template.ParseFiles("./templates/login.html"))
 
+	// Checking the HTTP method to verify if the form has been submitted or not.
+	// This is necessary to render the form in case the session has not yet begun
+	// or the user has not logged in yet.
 	if r.Method != http.MethodPost {
+		// To check if a session is already running w=in which case the user need not
+		// login again.
 		if session.Values["authenticated"] == true {
 			handle, err := retrievingHandle(session.Values["user"].(int))
 			if err != nil {
@@ -89,21 +113,25 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 			http.Redirect(w, r, handle, http.StatusFound)
 		}
+
+		// Render the login form since session is inactive.
 		t.Execute(w, nil)
 		return
 	}
 
+	// Fetching the details submitted in the form by the user.
 	loginCred := Login {
 		Usermail: r.FormValue("usermail"),
 		Password: r.FormValue("password"),
 	}
 
+	// Fetching the actual password associated with the mail id provided
 	val, err := fetchValues.LoginVerification(loginCred.Usermail)
-
 	if err != nil && val != "NoUser" {
 		log.Fatal(err)
 	}
 
+	// Invalid mail-id.
 	if val == "NoUser" {
 		x := Msg {
 			Flag: false,
@@ -116,6 +144,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Password mismatch.
 	if val != loginCred.Password {
 		x := Msg {
 			UFlag: false,
@@ -128,17 +157,20 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Starting the session after successful authorization
 	session.Values["user"], err = fetchValues.FetchUID(loginCred.Usermail)
 	if err != nil {
 		log.Fatal(err)
 	}
 	session.Values["authenticated"] = true
 
+	// Updating the session.
 	err = session.Save(r, w)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Retrieving the destination URL based on the role.
 	handle, err := retrievingHandle(session.Values["user"].(int))
 	if err != nil {
 		log.Fatal(err)
